@@ -1,0 +1,174 @@
+/* 只覆盖插件需要调整的入口，三套主题及小伙伴使用迁入的 OB 原样式。 */
+.astrbot-ob #btn-restart, .astrbot-ob #anchor-counter, .astrbot-ob #owner-badge,
+.astrbot-ob #self-fab, .astrbot-ob #self-panel, .astrbot-ob #self-overlay,
+.astrbot-ob #embed-warn-banner, .astrbot-ob #forgotten-group,
+.astrbot-ob .developer-only, .astrbot-ob [data-tab="v3-debug"],
+.astrbot-ob [onclick*="hardDelete"], .astrbot-ob [onclick*="openPermanentDelete"],
+.astrbot-ob [onclick*="runBucketBatch('forget')"],
+.astrbot-ob #settings-view .settings-subtabs,
+.astrbot-ob #settings-view .config-section:not(#sec-appearance):not(#ob-plugin-settings) { display:none !important; }
+.astrbot-ob #ob-plugin-settings { margin-top:20px; }
+.astrbot-ob #ob-plugin-settings p, .astrbot-ob #ob-unavailable p { color:var(--text-dim); font-size:13px; line-height:1.9; margin-top:12px; }
+.astrbot-ob #ob-unavailable[hidden] { display:none; }
+.astrbot-ob #ob-session-bar { width:min(1320px,calc(100% - 56px)); margin:18px auto 0; display:flex; align-items:center; gap:12px; flex-wrap:wrap; color:var(--text-dim); font-size:12px; }
+.astrbot-ob #ob-session { max-width:100%; min-width:200px; padding:7px 12px; }
+.astrbot-ob #ob-feedback { width:min(1320px,calc(100% - 56px)); margin:8px auto 0; color:var(--theme-accent-text); font-size:12px; }
+.astrbot-ob #ob-feedback:empty { display:none; }
+.astrbot-ob .ob-unsupported-tab { opacity:.65; }
+.astrbot-ob .ob-unsupported-tab.active { opacity:1; }
+.astrbot-ob #ob-unavailable h2 { color:var(--text); font-size:20px; }
+.astrbot-ob .header #stats { display:none; }
+@media(min-width:769px) { .astrbot-ob .tabs { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); } }
+.astrbot-ob #ob-plan-create { display:grid; gap:12px; margin:18px 0 24px; padding-bottom:24px; border-bottom:1px solid var(--border); }
+.astrbot-ob #ob-plan-create label { display:grid; gap:6px; color:var(--text-dim); font-size:12px; }
+.astrbot-ob #ob-plan-create input, .astrbot-ob #ob-plan-create textarea { padding:10px 12px; width:100%; }
+.astrbot-ob .ob-domain-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.astrbot-ob .ob-domain-actions button { padding:10px 16px; border-radius:12px; background:var(--accent); color:var(--theme-button-text); }
+.astrbot-ob #ob-plan-message { color:var(--text-dim); font-size:12px; }
+.astrbot-ob .ob-letter-card { margin-top:14px; padding:20px; border:1px solid var(--border); border-radius:18px; background:var(--surface); }
+.astrbot-ob .ob-letter-card h4 { margin:10px 0; color:var(--text); font-size:16px; }
+.astrbot-ob .ob-letter-meta { color:var(--text-dim); font-size:12px; line-height:1.8; }
+.astrbot-ob .ob-letter-body { white-space:pre-wrap; overflow-wrap:anywhere; color:var(--text); font-size:14px; line-height:1.9; }
+.astrbot-ob .ob-letter-actions { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+.astrbot-ob .ob-letter-actions button { padding:7px 11px; border-radius:9px; background:var(--theme-tint); color:var(--theme-accent-text); }
+
+/* Small stars replace the large ambient color washes. */
+body.astrbot-ob.dreamcloud {
+  --bg-gradient: var(--bg) !important;
+  --ob-star-core: color-mix(in srgb, var(--theme-accent-text) 35%, transparent);
+  --ob-star-soft: color-mix(in srgb, var(--theme-accent-text) 19%, transparent);
+  --ob-star-field:
+    radial-gradient(circle at 23px 31px, var(--ob-star-core) 0 .7px, transparent 1.4px),
+    radial-gradient(circle at 91px 67px, var(--ob-star-soft) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 143px 101px, var(--ob-star-core) 0 .8px, transparent 1.5px),
+    radial-gradient(circle at 47px 129px, var(--ob-star-soft) 0 .6px, transparent 1.2px);
+  --ob-star-grid: 211px 223px, 307px 281px, 389px 337px, 173px 257px;
+  background-color: var(--bg);
+  background-image: none;
+  background-size: var(--ob-star-grid);
+  font-size: 13px;
+  line-height: 1.6;
+}
+body.astrbot-ob.dreamcloud::before,
+body.astrbot-ob.dreamcloud::after {
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background-image:var(--ob-star-field); background-size:var(--ob-star-grid);
+  animation:ob-starlight 2.4s ease-in-out infinite alternate;
+}
+body.astrbot-ob.dreamcloud { isolation:isolate; }
+body.astrbot-ob.dreamcloud::after {
+  background-position:79px 113px, 137px 37px, 61px 173px, 193px 97px;
+  animation-duration:3.6s; animation-delay:-1.8s;
+}
+@keyframes ob-starlight { from {opacity:.18;} to {opacity:1;} }
+.astrbot-ob.ob-page-hidden::before, .astrbot-ob.ob-page-hidden::after { animation-play-state:paused; }
+@media(prefers-reduced-motion:reduce) {
+  body.astrbot-ob.dreamcloud::before, body.astrbot-ob.dreamcloud::after { animation:none; opacity:.65; }
+}
+html[data-theme="dark"] body.astrbot-ob.dreamcloud {
+  --ob-star-core: color-mix(in srgb, var(--text) 48%, transparent);
+  --ob-star-soft: color-mix(in srgb, var(--accent-light) 32%, transparent);
+}
+.astrbot-ob.dreamcloud #auth-overlay {
+  background-color: var(--bg) !important;
+  background-image: var(--ob-star-field) !important;
+  background-size: var(--ob-star-grid);
+}
+
+/* Use a consistent, denser scale across navigation, cards, and forms. */
+.astrbot-ob.dreamcloud .header { min-height:72px; padding-top:12px; padding-bottom:12px; gap:14px; }
+.astrbot-ob.dreamcloud .header h1 { font-size:24px; gap:9px; }
+.astrbot-ob.dreamcloud .header .ob-logo.user-brand-icon { width:44px; height:44px; }
+.astrbot-ob.dreamcloud .header .search-bar input { height:36px; font-size:11px; }
+.astrbot-ob.dreamcloud .tabs { margin-top:16px; padding-bottom:10px; gap:5px; }
+.astrbot-ob.dreamcloud .tab { min-height:46px; padding-top:7px; padding-bottom:7px; border-radius:12px; }
+.astrbot-ob.dreamcloud .tab > span:first-child { font-size:12px; }
+.astrbot-ob.dreamcloud .tab .tab-en { font-size:9px; }
+.astrbot-ob.dreamcloud #ob-memory-stats { margin-top:15px; }
+.astrbot-ob.dreamcloud #ob-memory-stats dl { gap:9px; }
+.astrbot-ob.dreamcloud .ob-stat { padding:12px 14px; gap:5px; border-radius:12px; }
+.astrbot-ob.dreamcloud .ob-stat dd { font-size:22px; line-height:1.15; }
+.astrbot-ob.dreamcloud .ob-stat dt { font-size:11px; }
+.astrbot-ob.dreamcloud #ob-session-bar { margin-top:12px; gap:9px; font-size:11px; }
+.astrbot-ob.dreamcloud #ob-session { min-width:180px; padding:5px 9px; }
+.astrbot-ob.dreamcloud .content { padding-top:20px; padding-bottom:56px; }
+.astrbot-ob.dreamcloud .filter-btn { min-height:31px; padding:5px 12px; font-size:11px; }
+.astrbot-ob.dreamcloud .bucket-viewbar { padding-bottom:10px; }
+.astrbot-ob.dreamcloud .bucket-bulkbar { padding-top:8px; padding-bottom:8px; margin-bottom:12px; }
+.astrbot-ob.dreamcloud .bucket-list { gap:9px; }
+.astrbot-ob.dreamcloud .bucket-row { padding:12px 16px; gap:8px; border-radius:14px 14px 14px 4px; }
+.astrbot-ob.dreamcloud .bucket-row:nth-child(3n+2) { border-radius:14px 4px 14px 14px; }
+.astrbot-ob.dreamcloud .bucket-row-top .name { font-size:13px; line-height:1.65; }
+.astrbot-ob.dreamcloud .bucket-row-bottom .preview { font-size:11px; line-height:1.75; }
+.astrbot-ob.dreamcloud .bucket-row .icon { width:26px; height:26px; min-width:26px; border-radius:9px; }
+.astrbot-ob.dreamcloud .bucket-row .bucket-row-bottom { padding-left:35px; }
+.astrbot-ob.dreamcloud .config-section { padding:18px; border-radius:14px; }
+.astrbot-ob.dreamcloud .config-section h3 { font-size:14px; }
+.astrbot-ob.dreamcloud .config-row { margin-bottom:10px; gap:10px; }
+.astrbot-ob.dreamcloud .config-row label, .astrbot-ob.dreamcloud .form-row label { font-size:12px; }
+.astrbot-ob.dreamcloud :is(input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]) { font-size:12px !important; border-radius:10px; }
+.astrbot-ob.dreamcloud .content button { font-size:11px !important; }
+.astrbot-ob.dreamcloud .content .icon-btn { padding:5px 9px !important; }
+.astrbot-ob.dreamcloud #plan-view > div, .astrbot-ob.dreamcloud #letters-view > div { max-width:820px !important; }
+.astrbot-ob.dreamcloud #ob-plan-create { gap:9px; margin:14px 0 18px; padding-bottom:18px; }
+.astrbot-ob.dreamcloud #ob-plan-create input, .astrbot-ob.dreamcloud #ob-plan-create textarea { padding:8px 10px; }
+.astrbot-ob.dreamcloud .plan-card { padding:11px 13px !important; border-radius:11px !important; }
+.astrbot-ob.dreamcloud .plan-card > div > div > div:first-child { font-size:13px; }
+.astrbot-ob.dreamcloud .ob-letter-card { padding:15px 17px; margin-top:11px; border-radius:13px; }
+.astrbot-ob.dreamcloud .ob-letter-card h4 { margin:8px 0; font-size:14px; }
+.astrbot-ob.dreamcloud .ob-letter-meta { font-size:11px; }
+.astrbot-ob.dreamcloud .ob-letter-body { font-size:13px; line-height:1.8; }
+.astrbot-ob.dreamcloud #letter-content { min-height:140px !important; padding:10px 12px !important; }
+.astrbot-ob.dreamcloud .detail-content { font-size:13px !important; line-height:1.85 !important; }
+.astrbot-ob #ob-memory-stats { width:min(1320px,calc(100% - 56px)); margin:22px auto 0; }
+.astrbot-ob #ob-memory-stats dl { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:12px; }
+.astrbot-ob .ob-stat { display:flex; flex-direction:column; gap:10px; padding:18px 20px; background:var(--theme-translucent); border:1px solid var(--border); border-radius:16px; }
+.astrbot-ob .ob-stat dt { order:2; color:var(--text-dim); font-size:12px; }
+.astrbot-ob .ob-stat dd { margin:0; color:var(--text); font-size:28px; line-height:1.2; font-weight:500; font-variant-numeric:tabular-nums; }
+@media(max-width:1000px) {
+  .astrbot-ob #ob-memory-stats dl { grid-template-columns:repeat(3,minmax(0,1fr)); }
+}
+@media(max-width:700px) {
+  .astrbot-ob #ob-memory-stats { width:calc(100% - 28px); margin-top:16px; }
+  .astrbot-ob #ob-memory-stats dl { gap:8px; }
+  .astrbot-ob .ob-stat { padding:14px 12px; gap:7px; border-radius:12px; }
+  .astrbot-ob .ob-stat dd { font-size:24px; }
+  .astrbot-ob .header-meta { display:none !important; }
+  .astrbot-ob #ob-session-bar, .astrbot-ob #ob-feedback { width:calc(100% - 28px); }
+  .astrbot-ob #ob-session { flex:1; min-width:0; }
+  .astrbot-ob #ob-session-note { width:100%; }
+}
+@media(max-width:700px) {
+  .astrbot-ob.dreamcloud .header { padding:13px 14px 12px; gap:9px; }
+  .astrbot-ob.dreamcloud .header h1 { font-size:21px; gap:7px; }
+  .astrbot-ob.dreamcloud .header .ob-logo.user-brand-icon { width:34px; height:34px; }
+  .astrbot-ob.dreamcloud #ob-memory-stats { margin-top:12px; }
+  .astrbot-ob.dreamcloud #ob-memory-stats dl { gap:7px; }
+  .astrbot-ob.dreamcloud .ob-stat { padding:10px 11px; gap:4px; border-radius:10px; }
+  .astrbot-ob.dreamcloud .ob-stat dd { font-size:20px; }
+  .astrbot-ob.dreamcloud .config-section { padding:15px 13px; }
+  .astrbot-ob.dreamcloud .bucket-row { padding:11px 12px; }
+  .astrbot-ob.dreamcloud .bucket-row .bucket-row-bottom { padding-left:0; }
+  .astrbot-ob.dreamcloud #ob-session { min-width:0; }
+}
+
+/* Keep all list discovery controls in one compact row. */
+.astrbot-ob.dreamcloud .header .header-actions { margin-left:auto; }
+.astrbot-ob.dreamcloud .bucket-viewbar { align-items:center; justify-content:space-between; gap:10px 18px; padding:0 0 14px; }
+.astrbot-ob.dreamcloud .ob-memory-filter { display:flex; align-items:center; gap:10px; color:var(--text-dim); font-size:12px; min-width:0; }
+.astrbot-ob.dreamcloud #ob-memory-filter { height:34px; min-width:174px; max-width:280px; padding:5px 28px 5px 10px !important; }
+.astrbot-ob.dreamcloud .ob-memory-search { position:relative; display:flex; align-items:center; flex:0 1 232px; width:232px; max-width:100%; margin:0; }
+.astrbot-ob.dreamcloud .ob-memory-search input { width:100%; min-width:0; height:34px; padding:6px 34px 6px 12px !important; font-size:11px !important; border-radius:12px !important; }
+.astrbot-ob.dreamcloud .ob-memory-search button { position:absolute; right:3px; display:flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0 !important; border:0 !important; background:transparent !important; color:var(--text-dim); }
+.astrbot-ob.dreamcloud .ob-memory-search button:hover { color:var(--text); }
+.astrbot-ob.dreamcloud #network-view.ob-galaxy-view { padding-top:18px; padding-bottom:30px; }
+.astrbot-ob #ob-galaxy-status { color:var(--text-dim); margin-bottom:8px; font-size:12px; }
+.astrbot-ob #ob-galaxy-status:empty { display:none; }
+.astrbot-ob #ob-galaxy-frame { display:block; width:100%; height:clamp(530px,76vh,900px); border:1px solid var(--border); border-radius:18px; background:#050209; }
+@media(max-width:700px) {
+  .astrbot-ob.dreamcloud .bucket-viewbar { gap:10px; }
+  .astrbot-ob.dreamcloud .ob-memory-filter { gap:7px; flex:1 1 185px; }
+  .astrbot-ob.dreamcloud #ob-memory-filter { flex:1; min-width:0; max-width:100%; width:155px; }
+  .astrbot-ob.dreamcloud .ob-memory-search { flex:1 1 130px; width:130px; }
+  .astrbot-ob #ob-galaxy-frame { height:70vh; min-height:500px; border-radius:13px; }
+}

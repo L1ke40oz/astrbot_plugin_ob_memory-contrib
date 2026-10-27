@@ -4,6 +4,46 @@
 
 ---
 
+## 双界面切换与计划、信件（v1.3.0）
+
+插件安装目录：`AstrBot/data/plugins/astrbot_plugin_ob_memory/`。
+
+继续访问原来的仪表盘地址，点击顶部 **「退出」右侧的「切换界面」** 按钮即可往返切换，浏览器地址栏保持不变。浏览器会记住上次选择；两套界面共用登录账户、SQLite 记忆与当前会话，切换不复制或迁移数据库。
+
+OB 界面的导航菜单下方显示当前会话的六项统计：**总记忆、核心准则、感受、活跃中、已沉底、已隐藏**。计数和原界面采用相同规则，随会话切换和记忆修改刷新，不受当前搜索或列表分页影响。部分状态可重叠；已沉底包含非 feel 的归档或已解决记忆，已隐藏对应 digested。
+
+OB 界面来自修改后的 Ombre Brain 3.7.0，包含淡紫粉色、星雪暮色、紫雾三套色系、浅色 / 深色 / 跟随系统，以及自定义图标和可拖动小伙伴。可使用会话选择、记忆列表和分页、状态 / 标签筛选、搜索、正文编辑、钉选、沉底、归档、批量沉底 / 归档和记忆星河。插件配置中的 `dashboard_session_id` 锁定仍然生效；OB 界面中的所有读写均限定在当前会话。
+
+OB 界面已移除日志、导入、Breath 模拟和锚点菜单，保留记忆桶、记忆星河、计划、信和设置。原界面的整理记录、导入导出、备份和删除继续保留；模型 Provider、自动记录和隔离策略仍由 AstrBot 管理。
+
+背景已改为随三套配色和明暗模式适配、错峰轻微闪烁的细小星点，移除右上与左下的紫粉色大光晕。导航、六项统计、记忆卡片、表单和信件采用更紧凑的字号与间距，手机端同步调整。
+
+星点主层约 4.8 秒完成一次明暗循环，另一层约 7.2 秒。记忆复选框右侧的紫色圆角底座用于显示类型 / 状态图标：气泡是普通记忆，图钉是钉选，表情是 Feel 感受，叶子是已消化，月亮是已解决；将鼠标放到图标上可查看说明。Feel 的嘴形随情绪效价变化，眼睛随唤醒程度变化。Lucide 1.24.0 图标库已改为插件本地资源，不依赖外部图标 CDN，许可见 `dashboard/static/ob/LUCIDE-LICENSE.txt`。
+
+**筛选与搜索**：删除原来的「全部 / 钉选 / Feel / 标签」按钮行及「时间顺序」控件。列表工具栏左侧的「记忆筛选」默认全部，分组列出状态、完整标签及记忆分类，显示各项数量；右侧是从顶部移下来的小搜索框。搜索与当前筛选取交集，清空搜索保留筛选，更换会话重置为全部；列表继续按综合分排列。统计始终显示整个会话的记忆数量。
+
+**记忆星河**：原「记忆网络」入口改为「记忆星河」，参考用户提供的 `galaxy-template.html` 和搭建教程。每条普通记忆对应一颗星，较早的记忆靠近中心，重要 / 钉选的星更亮，颜色跟随分类。拖动旋转、滚轮或双指缩放、点击星星阅读原文；同分类或共享标签的记忆会连成星座，也可从「寻找一颗记忆星」菜单选择。底部「查看 / 编辑记忆」进入原详情面板。支持暂停、回到远景及桌面沉浸查看；离开星河页暂停渲染，切换会话销毁旧星河。没有记忆时显示空状态，不填充示例记忆；浏览器不支持 3D 时仍可从菜单阅读原文。
+
+星河引擎为本地打包的 Three.js 0.160.0，许可见 `dashboard/static/ob/THREE-LICENSE.txt`，无需外部 CDN、单独的 memory.json 或公开导出记忆。数据复用已认证且受会话锁约束的记忆 API，不包含计划或信件。系统开启「减少动态效果」时，背景停止闪烁，星河默认暂停自转和流星。
+
+**计划**：网页可新增计划、设定承诺重量、编辑内容、标记完成、放弃及重新开启，完整保留变更记录。相同会话中正文相同的进行中计划会去重。模型通过 `memory_plan` 工具创建和管理计划；每次对话会带入少量进行中的承诺，模型确认事情真正完成后再调用完成操作，不按关键词自动判定闭环。
+
+**信件**：用户在网页写信，模型使用 `memory_letter` 双向读写。原文长期保存，不参与普通记忆的压缩、合并、衰减和检索。立即可读、定时解锁、永久锁均已接入；只有作者能编辑原文、管理锁和归档。永久锁可由作者主动解除。另一方未获开放时，列表、详情、搜索与模型上下文都不返回标题和正文。网页不能冒用 AI 身份写信，也不能替 AI 解锁。定时锁的模型工具参数须带时区，例如 `2027-01-01T09:00:00+08:00`；网页会自动把所选时间转换为带时区时间。
+
+计划和信件按当前会话隔离，使用同一个 `memory.db` 的新增表保存。插件重载时自动从 schema v2 增量迁移到 v3，原有记忆保持原样；只含计划或信件的会话也可在下拉框中选择。六项记忆统计继续统计普通记忆桶，计划和信件在各自页面单独计数。历史记忆 ZIP 导入导出仅处理普通记忆；要备份全部计划、信件和锁状态，应在插件停止后备份完整 `memory.db`，恢复时同样保持插件停止。
+
+**Plans and letters (English)**: The OB dashboard now provides persistent plan creation, weight, editing, lifecycle transitions, and change history. `memory_plan` and `memory_letter` are registered AstrBot tools scoped to the resolved conversation. Original letters are stored separately from ordinary recall and decay. Only their author can edit, change locks, or archive them; recipient-facing lists, details, searches, and model context redact locked titles and bodies. Timed locks require timezone-aware timestamps. Schema v3 adds domain tables without rewriting existing memories. The legacy memory ZIP covers ordinary memories only; use a stopped-plugin database backup for complete domain recovery.
+
+**Appearance and discovery (English)**: Small stars twinkle gently across every palette and theme. The old filter-button strip and time-order control are replaced by one state/tag/category selector beside a smaller search field, moved out of the header. Search intersects the selected filter; the default is all memories. The former Network tab is now Memory Galaxy: drag to orbit, zoom, select a star to read its exact original text and highlight related memories, or use the accessible memory selector. Editing opens the existing detail panel. The locally bundled Three.js 0.160.0 renderer needs no CDN or public memory export. Existing authenticated APIs provide ordinary memories for the resolved session only. Empty sessions contain no demo stars; unavailable 3D falls back to menu-based reading. Hidden tabs stop rendering, session changes destroy the old scene, and reduced-motion preferences disable background twinkling and pause galaxy motion.
+
+**Memory icons (English)**: The rounded icon beside each checkbox indicates memory type or status, with a tooltip and accessible label. A speech bubble means ordinary memory, a pin means pinned, a face means Feel, a leaf means digested, and a moon means resolved. Feel faces are drawn inline from valence and arousal. Lucide 1.24.0 is bundled locally to prevent blank icons when an external CDN is unavailable. Background twinkle cycles now take approximately 4.8 and 7.2 seconds.
+
+安装方式不变：将本插件目录放入 AstrBot 的插件目录，安装 `requirements.txt` 后重启插件或 AstrBot。使用 1Panel / OpenResty 反向代理时，保持同域名根路径代理到原仪表盘端口即可，无需增加站点或更换地址。若显式设置了 `Content-Security-Policy` 或 iframe 限制，应允许同源嵌入（`frame-src 'self'`、`frame-ancestors 'self'` / `X-Frame-Options: SAMEORIGIN`）。
+
+迁入文件位于 `dashboard/static/ob/`，适配逻辑位于 `dashboard/ob_compat.py`、`dashboard/static/ob/adapter.js` 与 `adapter.css`；原版 `dashboard/static/index.html` 及原 API 保留。OB 源码的 MIT 许可保留在 `dashboard/static/ob/OB-LICENSE.txt`。
+
+---
+
 ## 它在做什么
 
 传统记忆插件的套路是「累积对话历史 → 周期性总结 → 检索时拿 top-K → 拼回 prompt」。这种做法解决了"信息能否被找回"，但解决不了 AI 伴侣最常见的痛点：**「说完一个话题就一直说这个话题」、「过去 resolved 的事还在反复浮现」、「重要的未完结的事却没有被惦记」**。

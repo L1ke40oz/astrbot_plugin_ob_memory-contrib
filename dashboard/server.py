@@ -24,7 +24,6 @@ from ..core.embedding_service import pack_vector
 from ..core.models import MemoryBucket, clamp_bucket
 from .auth import AuthStore
 
-
 _EXPORT_FORMAT = "astrbot-memory-dashboard-export-v1"
 _BACKUP_PREFIX = "dashboard_import_backup_"
 _CONFIG_EXPORT_NAME = "memory-dashboard-config.json"
@@ -360,7 +359,12 @@ class DashboardServer:
         """Create the Starlette/ASGI app with all routes."""
         from starlette.applications import Starlette
         from starlette.requests import Request
-        from starlette.responses import FileResponse, HTMLResponse, JSONResponse, Response
+        from starlette.responses import (
+            FileResponse,
+            HTMLResponse,
+            JSONResponse,
+            Response,
+        )
         from starlette.routing import Route
 
         # ------------------------------------------------------------------
@@ -1049,7 +1053,7 @@ class DashboardServer:
             err = _require_auth(request)
             if err:
                 return err
-            model = str((getattr(self.plugin.writer, "digest_prompt", "") or "")).strip()
+            model = str(getattr(self.plugin.writer, "digest_prompt", "") or "").strip()
             return JSONResponse(
                 {
                     "ai_available": self.plugin.tagger is not None,
@@ -1439,10 +1443,19 @@ class DashboardServer:
         # Frontend
         # ------------------------------------------------------------------
         async def dashboard_page(request: Request) -> Response:
-            html_path = Path(__file__).parent / "static" / "index.html"
+            # Keep the outer URL stable while isolating each UI in a same-origin frame.
+            filename = (
+                "index.html"
+                if request.query_params.get("ui") == "classic"
+                else "frontend-shell.html"
+            )
+            html_path = Path(__file__).parent / "static" / filename
             if not html_path.exists():
                 return HTMLResponse("<h1>Dashboard 前端文件缺失</h1>", status_code=500)
-            return HTMLResponse(html_path.read_text(encoding="utf-8"))
+            return HTMLResponse(
+                html_path.read_text(encoding="utf-8"),
+                headers={"Cache-Control": "no-store"},
+            )
 
         async def root_page(request: Request) -> Response:
             """Convenience: / also serves the dashboard directly."""
@@ -1532,6 +1545,10 @@ class DashboardServer:
             Route("/api/backups/list", api_backups_list, methods=["GET"]),
             Route("/api/backups/delete", api_backups_delete, methods=["POST"]),
         ]
+
+        from .ob_compat import ObDashboard
+
+        routes.extend(ObDashboard(self, _require_auth).routes())
 
         app = Starlette(routes=routes)
         return app

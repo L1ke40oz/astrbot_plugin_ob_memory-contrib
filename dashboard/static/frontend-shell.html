@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#F4F0F8">
+  <title>小回的记忆</title>
+  <link rel="icon" href="/static/icon-192.png">
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    :root { color-scheme: light dark; }
+    html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#F4F0F8; }
+    body { display:flex; flex-direction:column; }
+    iframe { flex:1; min-height:0; width:100%; display:block; border:0; }
+    #frontend-status { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+    @media(prefers-color-scheme:dark) { body {background:#1B1A2E;} }
+  </style>
+</head>
+<body>
+  <iframe id="frontend-frame" title="记忆仪表盘" allow="clipboard-write; fullscreen"></iframe>
+  <span id="frontend-status" role="status" aria-live="polite"></span>
+  <noscript>请启用 JavaScript 后使用记忆仪表盘。</noscript>
+  <script>
+    (function () {
+      var key = 'memory_dashboard_frontend';
+      var frame = document.getElementById('frontend-frame');
+      var current = 'classic';
+      var observer;
+      try { if (localStorage.getItem(key) === 'ob') current = 'ob'; } catch (_) {}
+      function apply(value, save) {
+        if (value !== 'ob' && value !== 'classic') return;
+        current = value;
+        if (save) { try { localStorage.setItem(key, value); } catch (_) {} }
+        frame.title = value === 'ob' ? 'OB 记忆界面' : '原记忆界面';
+        frame.src = value === 'ob' ? '/ob' : '/dashboard?ui=classic';
+        document.getElementById('frontend-status').textContent = value === 'ob' ? '已切换到 OB 界面' : '已切换到原界面';
+      }
+      function switchFrontend() {
+        try {
+          // 先让编辑者保存或放弃草稿，再销毁当前界面，避免无提示丢失修改。
+          var hook = frame.contentWindow.canSwitchDashboardFrontend;
+          if (typeof hook === 'function' && hook() === false) return;
+          if (typeof hook !== 'function' && frame.contentWindow.editingId && !confirm('原界面正在编辑记忆，确认放弃修改并切换？')) return;
+        } catch (_) {}
+        apply(current === 'ob' ? 'classic' : 'ob', true);
+      }
+      function mountSwitch() {
+        var doc = frame.contentDocument;
+        if (!doc || !doc.body || doc.getElementById('frontend-switch')) return;
+        if (observer) observer.disconnect();
+        var styleTag = doc.createElement('style');
+        styleTag.textContent = '.frontend-switch-button{display:inline-flex!important;align-items:center;justify-content:center;gap:5px;min-height:32px;border:0;border-radius:10px;background:transparent;color:inherit;font:inherit;cursor:pointer;white-space:nowrap}' +
+          '#frontend-switch{width:auto!important;padding:0 8px!important;font-size:11px!important;flex-shrink:0}' +
+          '.frontend-switch-button svg{width:15px;height:15px;flex-shrink:0;pointer-events:none}' +
+          '.frontend-switch-button:focus-visible{outline:2px solid currentColor!important;outline-offset:3px}' +
+          '#frontend-switch-login{display:flex!important;margin:18px auto 0;padding:7px 12px}' +
+          '@media(max-width:600px){.top-bar>div:last-child>span{display:none}}' +
+          '@media(max-width:380px){#frontend-switch .frontend-switch-text{display:none}#frontend-switch{width:30px!important;padding:0!important}}';
+        doc.head.appendChild(styleTag);
+        function makeButton(id) {
+          var button = doc.createElement('button');
+          button.id = id; button.type = 'button'; button.className = 'frontend-switch-button';
+          button.setAttribute('aria-label', current === 'ob' ? '切换到原界面' : '切换到 OB 界面');
+          button.title = button.getAttribute('aria-label');
+          button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16m-4-4 4 4-4 4M20 17H4m4-4-4 4 4 4"/></svg><span class="frontend-switch-text">切换界面</span>';
+          button.addEventListener('click', switchFrontend);
+          return button;
+        }
+        var logout = doc.querySelector('button[onclick*="doLogout"]');
+        if (logout) logout.after(makeButton('frontend-switch'));
+        var login = doc.querySelector('#auth-overlay > div, #loginPage');
+        if (login) login.appendChild(makeButton('frontend-switch-login'));
+        function sync() {
+          var style = frame.contentWindow.getComputedStyle(doc.body);
+          var bg = style.getPropertyValue('--bg').trim() || '#F4F0F8';
+          var color = style.getPropertyValue('--text').trim() || '#3D3450';
+          document.body.style.background = bg;
+          document.querySelector('meta[name="theme-color"]').content = bg;
+          document.title = doc.title;
+        }
+        sync();
+        observer = new MutationObserver(sync);
+        observer.observe(doc.documentElement, {attributes:true,attributeFilter:['data-theme','data-palette','class','style']});
+        observer.observe(doc.body, {attributes:true,attributeFilter:['class','style']});
+        var title = doc.querySelector('title');
+        if (title) observer.observe(title, {childList:true});
+      }
+      window.mountDashboardFrontendSwitch = mountSwitch;
+      frame.addEventListener('load', mountSwitch);
+      apply(current, false);
+    })();
+  </script>
+</body>
+</html>

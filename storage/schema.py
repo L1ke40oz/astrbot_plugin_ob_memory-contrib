@@ -1,7 +1,7 @@
 """SQLite schema definitions and migration runner.
 
-The plugin uses a single ``memory.db`` file with two domain tables
-(``memories``, ``embeddings``) plus a bookkeeping ``schema_version`` table.
+The plugin uses a single ``memory.db`` file for ordinary memories,
+embeddings, session state, plans, and correspondence.
 
 Migrations are applied in numeric order; once applied a row is recorded so
 re-running ``apply_migrations`` is idempotent. Future schema changes
@@ -96,6 +96,30 @@ SCHEMA_V2: tuple[str, ...] = (
 MIGRATIONS: dict[int, tuple[str, Migration]] = {
     1: ("initial schema: memories + embeddings", SCHEMA_V1),
     2: ("session_state: persistent every_n_turns counter", SCHEMA_V2),
+    3: (
+        "persistent plans and private correspondence",
+        (
+            """CREATE TABLE IF NOT EXISTS memory_plans (
+            id TEXT PRIMARY KEY, session_id TEXT NOT NULL,
+            name TEXT NOT NULL, content TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','resolved','abandoned')),
+            weight REAL NOT NULL DEFAULT 0.5 CHECK(weight >= 0 AND weight <= 1),
+            change_log TEXT NOT NULL DEFAULT '[]', revision INTEGER NOT NULL DEFAULT 1,
+            created_at REAL NOT NULL, updated_at REAL NOT NULL)""",
+            "CREATE INDEX IF NOT EXISTS idx_plans_session ON memory_plans(session_id, status, updated_at)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_plans_active_content ON memory_plans(session_id, content) WHERE status = 'active'",
+            """CREATE TABLE IF NOT EXISTS memory_letters (
+            id TEXT PRIMARY KEY, session_id TEXT NOT NULL,
+            author_side TEXT NOT NULL CHECK(author_side IN ('human','ai')),
+            writer_name TEXT NOT NULL, title TEXT NOT NULL DEFAULT '',
+            content TEXT NOT NULL, letter_date TEXT NOT NULL,
+            lock_type TEXT NOT NULL DEFAULT 'none' CHECK(lock_type IN ('none','timed','permanent')),
+            unlock_at REAL, archived INTEGER NOT NULL DEFAULT 0,
+            revision INTEGER NOT NULL DEFAULT 1,
+            created_at REAL NOT NULL, updated_at REAL NOT NULL)""",
+            "CREATE INDEX IF NOT EXISTS idx_letters_session ON memory_letters(session_id, archived, created_at)",
+        ),
+    ),
 }
 
 
