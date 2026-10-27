@@ -28,11 +28,13 @@ Critical security/behaviour rules baked in:
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import TYPE_CHECKING
 
 from astrbot.api.event import AstrMessageEvent
 
+from ..core.plans_letters import PlansLetters
 from ..core.search_service import SearchHit
 
 if TYPE_CHECKING:
@@ -127,6 +129,135 @@ class MemoryToolsMixin:
     search: object
     manager: object
     embedding: object
+
+    async def memory_plan(
+        self, event, action="list", plan_id="", content="", name="", weight=-1.0
+    ):
+        """Dispatch a plan operation using only the event-derived session.
+
+        Args:
+            event: The trusted AstrBot event.
+            action: list, create, resolve, abandon, reopen, or edit.
+            plan_id: Target plan identifier.
+            content: Original commitment text.
+            name: Optional display title.
+            weight: Optional weight, with -1 meaning unchanged/default.
+
+        Returns:
+            A JSON result or a contained error, never a cross-session record.
+        """
+        store = getattr(self, "correspondence", None)
+        if not isinstance(store, PlansLetters):
+            return "计划系统尚未初始化，请稍后再试。"
+        try:
+            session = await _resolve_session_via_plugin(self, event)
+            if action == "list":
+                result = (await store.plans(session))[:20]
+            elif action == "create":
+                result = await store.create_plan(
+                    session,
+                    content,
+                    name=name,
+                    weight=0.5 if weight == -1 else weight,
+                    actor="ai",
+                )
+            else:
+                result = await store.change_plan(
+                    session,
+                    plan_id,
+                    action,
+                    actor="ai",
+                    content=content or None,
+                    name=name or None,
+                    weight=None if weight == -1 else weight,
+                )
+            return json.dumps(result, ensure_ascii=False)
+        except (ValueError, TypeError, LookupError, PermissionError) as exc:
+            return json.dumps({"error": str(exc)}, ensure_ascii=False)
+        except Exception:
+            logger.exception("plan tool failed")
+            return "计划操作失败，请稍后重试。"
+
+    async def memory_letter(
+        self,
+        event,
+        action="list",
+        letter_id="",
+        content="",
+        title="",
+        writer_name="",
+        letter_date="",
+        lock_type="none",
+        unlock_date="",
+        query="",
+    ):
+        """Dispatch correspondence using the fixed AI author/reader side.
+
+        Args:
+            event: Trusted event supplying session isolation.
+            action: list, read, write, edit, lock, or archive.
+            letter_id: Target letter identifier.
+            content: Full original letter text.
+            title: Optional title.
+            writer_name: Optional AI signature.
+            letter_date: Optional ISO date.
+            lock_type: none, timed, or permanent.
+            unlock_date: Future timezone-aware ISO datetime.
+            query: Optional search over information readable by the AI.
+
+        Returns:
+            A JSON payload with inaccessible text redacted before serialization.
+        """
+        store = getattr(self, "correspondence", None)
+        if not isinstance(store, PlansLetters):
+            return "信件系统尚未初始化，请稍后再试。"
+        try:
+            session = await _resolve_session_via_plugin(self, event)
+            if action == "list":
+                result = (await store.letters(session, actor="ai", query=query))[:20]
+                for letter in result:
+                    if "content" in letter:
+                        letter["preview"] = letter.pop("content")[:300]
+            elif action == "read":
+                result = await store.read_letter(session, letter_id, actor="ai")
+            elif action == "write":
+                result = await store.write_letter(
+                    session,
+                    content,
+                    actor="ai",
+                    writer_name=writer_name,
+                    title=title,
+                    letter_date=letter_date,
+                    lock_type=lock_type,
+                    unlock_date=unlock_date,
+                )
+            elif action in {"edit", "lock", "archive"}:
+                body = (
+                    {"lock_type": lock_type, "unlock_date": unlock_date}
+                    if action == "lock"
+                    else {}
+                )
+                if action == "edit":
+                    body = {
+                        key: value
+                        for key, value in {
+                            "content": content,
+                            "title": title,
+                            "date": letter_date,
+                        }.items()
+                        if value
+                    }
+                result = await store.change_letter(
+                    session, letter_id, body, actor="ai", archive=action == "archive"
+                )
+            else:
+                raise ValueError("不支持的信件操作")
+            return json.dumps(result, ensure_ascii=False)
+        except (ValueError, TypeError, LookupError, PermissionError) as exc:
+            return json.dumps({"error": str(exc)}, ensure_ascii=False)
+        except Exception:
+            logger.exception("letter tool failed")
+            return "信件操作失败，请稍后重试。"
 
     def _ready(self: MemoryPlugin) -> tuple[bool, str]:
         """Return ``(ok, error_message)`` so tools can short-circuit cleanly."""

@@ -1,0 +1,42 @@
+/* The supplied galaxy template's quiet night sky, with no remote fonts. */
+* { box-sizing:border-box; }
+html,body { margin:0; width:100%; height:100%; overflow:hidden; background:#050209; color:#F1ECF7; }
+body { font-family:'Microsoft YaHei',sans-serif; font-size:12px; }
+button,select { font:inherit; color:#E4D7EE; background:rgba(18,12,31,.76); border:1px solid rgba(177,145,204,.28); border-radius:9px; min-height:32px; padding:6px 10px; }
+button { cursor:pointer; }
+button:hover { background:#2A1D3A; }
+button:focus-visible,select:focus-visible { outline:2px solid #D9B6F3; outline-offset:3px; }
+select { max-width:230px; text-overflow:ellipsis; }
+#gl { position:fixed; inset:0; display:block; width:100%; height:100%; touch-action:none; }
+.galaxy-heading { position:absolute; top:25px; left:28px; pointer-events:none; }
+.galaxy-heading p { margin:0 0 4px; font:italic 22px Georgia,serif; color:#DCC7ED; }
+.galaxy-heading h1 { margin:0; font:400 19px 'Songti SC',SimSun,serif; letter-spacing:.16em; }
+#galaxy-count { margin-top:10px; color:#BCACCD; font-size:11px; }
+.galaxy-tools { position:absolute; right:22px; top:24px; display:flex; justify-content:flex-end; gap:7px; flex-wrap:wrap; max-width:65%; }
+#galaxy-status { position:absolute; top:45%; left:10%; right:10%; text-align:center; color:#DCC7ED; line-height:1.8; pointer-events:none; }
+#galaxy-status:empty { display:none; }
+.galaxy-hint,.galaxy-key { position:absolute; bottom:32px; left:0; right:0; text-align:center; pointer-events:none; color:#C3AFD4; font-size:11px; margin:0; }
+.galaxy-key { bottom:14px; color:#91829F; font-size:10px; }
+#galaxy-letter { position:absolute; left:0; right:0; bottom:0; max-height:52%; padding:38px 5% 24px; display:flex; flex-direction:column; background:linear-gradient(to top,rgba(5,2,12,.97) 60%,rgba(5,2,12,.8) 82%,transparent); animation:galaxy-letter-in .45s ease; }
+#galaxy-letter[hidden] { display:none; }
+.letter-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+#galaxy-title { margin:0; font:400 18px 'Songti SC',SimSun,serif; color:#F7E7FA; overflow-wrap:anywhere; }
+#galaxy-close { background:transparent; border:0; font-size:23px; padding:0 8px; }
+#galaxy-meta { color:#C4ADDA; font-size:11px; margin:6px 0 13px; }
+#galaxy-body { overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font:400 14px/1.95 'Songti SC',SimSun,serif; color:#E5D7EE; padding-right:6px; }
+#galaxy-edit { align-self:flex-start; margin-top:14px; flex-shrink:0; }
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+@keyframes galaxy-letter-in { from {opacity:0;transform:translateY(12px);} to {opacity:1;transform:translateY(0);} }
+@media(max-width:650px) {
+  .galaxy-heading { top:19px; left:17px; }
+  .galaxy-heading p { font-size:17px; }
+  .galaxy-heading h1 { font-size:16px; }
+  .galaxy-tools { top:20px; right:14px; max-width:51%; gap:6px; }
+  .galaxy-tools select { flex:1 1 100%; width:100%; max-width:100%; }
+  .galaxy-tools button { font-size:10px; min-height:29px; padding:5px 7px; }
+  #galaxy-fullscreen { display:none; }
+  #galaxy-letter { max-height:58%; padding:30px 18px 18px; }
+  #galaxy-body { font-size:13px; }
+  .galaxy-hint { font-size:10px; }
+}
+@media(prefers-reduced-motion:reduce) { #galaxy-letter { animation:none; } }

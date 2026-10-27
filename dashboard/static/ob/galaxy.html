@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <title>记忆星河</title>
+  <link rel="stylesheet" href="/ob/static/galaxy.css">
+</head>
+<body>
+  <canvas id="gl" aria-label="记忆星河，可拖动旋转、滚轮或双指缩放。也可用寻找记忆菜单阅读。"></canvas>
+  <header class="galaxy-heading">
+    <p>Memory Galaxy</p><h1>记忆星河</h1>
+    <div id="galaxy-count">正在等待星光…</div>
+  </header>
+  <div class="galaxy-tools">
+    <label for="galaxy-picker" class="sr-only">寻找一颗记忆星</label>
+    <select id="galaxy-picker"><option value="">寻找一颗记忆星…</option></select>
+    <button id="galaxy-motion" type="button" aria-pressed="false">暂停星河</button>
+    <button id="galaxy-reset" type="button">回到远景</button>
+    <button id="galaxy-fullscreen" type="button">沉浸查看</button>
+  </div>
+  <p id="galaxy-status" role="status">星河正在展开…</p>
+  <p class="galaxy-hint">拖动旋转 · 滚轮或双指缩放 · 点亮记忆星</p>
+  <p class="galaxy-key">越早的记忆越靠近中心，越重要的记忆越明亮</p>
+  <section id="galaxy-letter" aria-labelledby="galaxy-title" hidden>
+    <div class="letter-heading"><h2 id="galaxy-title"></h2><button id="galaxy-close" type="button" aria-label="收起记忆">×</button></div>
+    <p id="galaxy-meta"></p>
+    <div id="galaxy-body"></div>
+    <button id="galaxy-edit" type="button">查看 / 编辑记忆</button>
+  </section>
+  <script src="/ob/static/galaxy-host.js"></script>
+</body>
+</html>

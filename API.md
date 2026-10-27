@@ -17,6 +17,46 @@
 
 ---
 
+## 双界面与新版 OB 适配（v1.3.0）
+
+`GET /` 与 `GET /dashboard` 返回固定地址的界面容器。容器把切换按钮放到两套界面顶部的「退出」右侧，通过同源 iframe 切换，外层 URL 不变。`GET /dashboard?ui=classic` 返回原版页面，`GET /ob` 返回 OB 页面，`GET /ob/static/{filename}` 只提供白名单资源。页面本身可公开读取，业务 API 全部复用 `memory_dashboard_session` 认证。OB 的六项状态统计直接使用当前会话已加载的完整记忆数组，不额外读取其他会话。
+
+原有 `/api/*` 响应结构保持不变。新版界面将请求发送到独立的 `/ob/api/*` 命名空间，所有业务请求可携带 `session` 查询参数；配置指定 `dashboard_session_id` 时优先执行锁定，拒绝其他会话。省略会话时采用最近活跃会话。
+
+OB 列表的状态、标签和分类筛选在当前会话完整数组上执行，并与搜索结果取交集。记忆星河复用 `GET /ob/api/buckets?sort=created_asc`；父页面完成共享认证和会话解析后，将记录发送给同源星河 iframe。消息同时校验 origin 和父子窗口来源；换会话会销毁旧 iframe，过期响应不再投递。不生成可公开读取的记忆 JSON，星河静态资源中不含示例或真实记忆。`/ob/api/network` 概念图接口继续保留兼容，OB 导航展示星河。
+
+The Galaxy tab reuses the authenticated bucket API and validates same-origin parent/frame messages. Static assets contain no memory data; there is no public JSON export or new data endpoint. The legacy concept-network API remains available.
+
+- `GET /ob/api/sessions`：返回会话摘要、默认会话和 `locked` 状态。
+- `GET /ob/api/capabilities`：明确列出支持与未支持的功能。
+- `GET /ob/api/buckets?sort=score|created_desc|created_asc`：返回 OB 形状的当前会话记忆数组。
+- `GET /ob/api/bucket/{id}`：返回 `metadata`、原始正文、活跃分和关联感受。读取不触发记忆激活。
+- `GET /ob/api/search?q=...`：当前会话搜索；已接入搜索服务时使用其关键词 / 向量检索，否则回退文本搜索。
+- `PATCH /ob/api/bucket/{id}/edit`：支持名称、正文、域、标签、重要度、类型和 pinned / resolved / digested；不支持字段返回 400，不静默丢弃。更新正文时复用已有 embedding 服务。
+- `POST /ob/api/bucket/{id}/pin|resolve|archive`：切换钉选、切换已解决、归档；钉选记忆需先解除钉选才能归档。
+- `POST /ob/api/buckets/batch`：`{"ids":["..."],"action":"resolve|archive"}`；最多 100 条，写入前检查所有目标属于当前会话，事务内保存。
+- `GET /ob/api/network?mode=concept`：基于标签、域和正文双链的概念网络；最多 150 节点。向量投影尚未实现，返回 501。
+- `GET /ob/api/config`：仅返回提供给新界面的插件能力摘要，不返回 API 密钥。
+- `GET /ob/api/heartbeat`、`GET /ob/api/version`：插件运行和版本摘要。
+- `GET /ob/api/plans`：按 active / resolved / abandoned 返回当前会话的计划和变更记录。
+- `POST /ob/api/plans`：`{"content":"承诺正文","name":"可选名称","weight":0.5}`；重量范围 0–1，进行中的相同正文计划精确去重。
+- `POST /ob/api/plans/{id}/action`：`{"action":"resolve|abandon|reopen|edit"}`；edit 可附 content、name、weight。历史记录包含操作者和变更前后值。
+- `GET /ob/api/letters?author=user|ai&q=...`：当前会话信件列表。锁检查先于搜索；不可读信件不含 title 和 content。
+- `GET /ob/api/letter/{id}`：采用相同权限规则的单封信件读取。
+- `POST /ob/api/letter`：content 必填，支持 title、user_name、date、lock_type、unlock_date。网页作者固定为 human，author 只接受 user。
+- `PATCH /ob/api/letter/{id}`：仅作者可修改 content、title、date 或 lock_type / unlock_date；另一方即使已可读也不能改写原文。
+- `DELETE /ob/api/letter/{id}`：仅作者可归档，原文仍保留于数据库，不执行物理删除。
+
+锁类型为 none、timed、permanent。timed 的 unlock_date 必须是未来且包含时区的 ISO 8601 时间，到期后对方可读。身份由可信调用入口决定：网页为 human，模型工具为 ai，不从请求体接受锁所有者。跨会话 ID 返回 404；无权改写或解锁返回 403；无效参数返回 400；并发版本冲突返回 409。
+
+Schema v3 使用 `memory_plans`、`memory_letters` 专表；普通记忆 API、网络和历史 ZIP 导出不包含信件正文，防止绕过锁。新增模型工具 `memory_plan`（list/create/edit/resolve/abandon/reopen）与 `memory_letter`（list/read/write/edit/lock/archive），会话由 AstrBot SessionResolver 解析，模型不能传入其他会话 ID。
+
+For clients: plans and correspondence use separate persistent tables. Dashboard callers are always the human side; model tools always use the AI side. Locked titles and bodies are redacted before filtering or serialization. Original memory endpoints never expose correspondence. Only authors may edit or archive letters. Optimistic revision checks reject concurrent lost updates with HTTP 409.
+
+其余新版 OB 功能返回 501；不以空列表或成功响应伪装能力。不会将永久删除、主动遗忘等新语义映射为插件旧版本中的其他状态。
+
+---
+
 ## 认证端点
 
 ### GET /auth/status

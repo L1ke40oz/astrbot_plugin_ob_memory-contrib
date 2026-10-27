@@ -259,7 +259,8 @@ class MemoryManager:
         Dashboard's Sessions tab.
         """
         rows = await self.db.fetch_all(
-            "SELECT DISTINCT session_id FROM memories ORDER BY session_id"
+            "SELECT session_id FROM memories UNION SELECT session_id FROM memory_plans "
+            "UNION SELECT session_id FROM memory_letters ORDER BY session_id"
         )
         return [r["session_id"] for r in rows]
 
@@ -279,9 +280,11 @@ class MemoryManager:
         """
         rows = await self.db.fetch_all(
             "SELECT session_id, "
-            "       COUNT(*) AS memory_count, "
+            "       SUM(memory_count) AS memory_count, "
             "       MAX(last_active_at) AS last_active_at "
-            "FROM memories "
+            "FROM (SELECT session_id, COUNT(*) AS memory_count, MAX(last_active_at) AS last_active_at FROM memories GROUP BY session_id "
+            "UNION ALL SELECT session_id, 0, MAX(updated_at) FROM memory_plans GROUP BY session_id "
+            "UNION ALL SELECT session_id, 0, MAX(updated_at) FROM memory_letters GROUP BY session_id) "
             "GROUP BY session_id "
             "ORDER BY last_active_at DESC"
         )
