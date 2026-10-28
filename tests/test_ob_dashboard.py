@@ -196,9 +196,9 @@ async def test_edit_pin_resolve_archive_persist_and_reject_unsupported_fields(
     assert (
         await client.post(
             "/ob/api/buckets/permanent-delete?session=private",
-            json={"ids": ["a-old"], "confirm": True},
+            json={"ids": ["a-old"], "confirm": False},
         )
-    ).status_code == 501
+    ).status_code == 400
     assert await plugin.manager.get("private", "a-old") is not None
 
 
@@ -216,6 +216,109 @@ async def test_graph_and_missing_features_are_honest(dashboard):
     assert (await client.get("/ob/api/letters")).status_code == 200
     caps = (await client.get("/ob/api/capabilities")).json()
     assert "letters" in caps["supported"] and "edit" in caps["supported"]
+    assert "permanent-delete" in caps["supported"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "body",
+    [
+        {},
+        {"ids": ["a-old"]},
+        {"ids": ["a-old"], "confirm": "true"},
+        {"ids": ["a-old"], "confirm": 1},
+        {"ids": [], "confirm": True},
+        {"ids": "a-old", "confirm": True},
+        {"ids": [False], "confirm": True},
+        {"ids": [" "], "confirm": True},
+        {"ids": ["a-old"] * 101, "confirm": True},
+    ],
+)
+async def test_permanent_delete_rejects_unconfirmed_or_invalid_requests(
+    dashboard, body
+):
+    client, plugin = dashboard
+    await login(client)
+    response = await client.post(
+        "/ob/api/buckets/permanent-delete?session=private", json=body
+    )
+    assert response.status_code == 400
+    assert await plugin.manager.get("private", "a-old") is not None
+
+
+@pytest.mark.asyncio
+async def test_permanent_delete_auth_scope_confirmation_and_vector_cleanup(dashboard):
+    client, plugin = dashboard
+    endpoint = "/ob/api/buckets/permanent-delete?session=private"
+    assert (
+        await client.post(endpoint, json={"ids": ["a-old"], "confirm": True})
+    ).status_code == 401
+    await login(client)
+    for bad_id in ("b-secret", "missing"):
+        response = await client.post(
+            endpoint, json={"ids": ["a-old", bad_id], "confirm": True}
+        )
+        assert response.status_code == 400
+        assert await plugin.manager.get("private", "a-old") is not None
+    await plugin.manager.update("private", "a-old", pinned=True)
+    await plugin.manager.db.executemany(
+        "INSERT INTO embeddings(bucket_id,vector,dim,updated_at) VALUES(?,?,?,?)",
+        [(bid, b"1234", 1, time.time()) for bid in ("a-old", "a-new", "b-secret")],
+    )
+    response = await client.post(
+        endpoint, json={"ids": ["a-old", "a-new", "a-old"], "confirm": True}
+    )
+    assert response.status_code == 200
+    assert response.json()["deleted"] == ["a-old", "a-new"]
+    assert await plugin.manager.list_by_session("private", include_archived=True) == []
+    vectors = await plugin.manager.db.fetch_all("SELECT bucket_id FROM embeddings")
+    assert [row["bucket_id"] for row in vectors] == ["b-secret"]
+    assert await plugin.manager.get("group", "b-secret") is not None
+
+
+@pytest.mark.asyncio
+async def test_permanent_delete_honors_configured_session_lock(dashboard):
+    client, plugin = dashboard
+    plugin.config["dashboard_session_id"] = "private"
+    await login(client)
+    response = await client.post(
+        "/ob/api/buckets/permanent-delete?session=group",
+        json={"ids": ["b-secret"], "confirm": True},
+    )
+    assert response.status_code == 400
+    assert await plugin.manager.get("group", "b-secret") is not None
+
+
+@pytest.mark.asyncio
+async def test_permanent_delete_rolls_back_all_memories_on_cleanup_failure(
+    dashboard, monkeypatch
+):
+    client, plugin = dashboard
+    await login(client)
+    db = plugin.manager.db
+    await db.execute(
+        "INSERT INTO embeddings(bucket_id,vector,dim,updated_at) VALUES(?,?,?,?)",
+        ("a-old", b"1234", 1, time.time()),
+    )
+    connection = db._require_conn()
+    original = connection.executemany
+
+    async def fail_cleanup(sql, parameters):
+        if "DELETE FROM embeddings" in sql:
+            raise RuntimeError("Simulated vector cleanup failure")
+        return await original(sql, parameters)
+
+    monkeypatch.setattr(connection, "executemany", fail_cleanup)
+    with pytest.raises(RuntimeError, match="Simulated vector cleanup failure"):
+        await client.post(
+            "/ob/api/buckets/permanent-delete?session=private",
+            json={"ids": ["a-old", "a-new"], "confirm": True},
+        )
+    assert await plugin.manager.get("private", "a-old") is not None
+    assert await plugin.manager.get("private", "a-new") is not None
+    assert await db.fetch_one(
+        "SELECT bucket_id FROM embeddings WHERE bucket_id='a-old'"
+    )
 
 
 @pytest.mark.asyncio

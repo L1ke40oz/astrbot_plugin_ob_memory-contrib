@@ -38,7 +38,7 @@ from .storage.schema import apply_migrations
     "You",
     "这是关于你们的点滴",
     "v1.3.0",
-    "https://github.com/L1ke40oz/astrbot_plugin_ob_memory",
+    "https://github.com/wx10160330-oss/astrbot_plugin_ob_memory",
 )
 class MemoryPlugin(
     MemoryToolsMixin,

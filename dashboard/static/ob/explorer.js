@@ -5,15 +5,21 @@
     const toolbar = document.querySelector('#list-view .bucket-viewbar');
     toolbar.replaceChildren();
     document.getElementById('filters').remove();
-    const label = document.createElement('label');
-    label.className = 'ob-memory-filter';
-    label.htmlFor = 'ob-memory-filter';
-    label.append('记忆筛选');
-    const picker = document.createElement('select');
-    picker.id = 'ob-memory-filter';
-    picker.setAttribute('aria-label', '按记忆状态或标签筛选');
-    label.append(picker);
-    toolbar.append(label);
+    const toggle = document.createElement('button');
+    toggle.type = 'button'; toggle.id = 'ob-filter-toggle';
+    toggle.textContent = '筛选与排序 ▾';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-controls', 'ob-filter-panel');
+    toolbar.append(toggle);
+    const panel = document.createElement('section');
+    panel.id = 'ob-filter-panel'; panel.hidden = true;
+    panel.setAttribute('aria-label', '记忆筛选与排序');
+    toolbar.after(panel);
+    toggle.addEventListener('click', () => {
+      panel.hidden = !panel.hidden;
+      toggle.setAttribute('aria-expanded', String(!panel.hidden));
+      toggle.textContent = panel.hidden ? '筛选与排序 ▾' : '筛选与排序 ▴';
+    });
     const search = document.querySelector('.header .search-bar');
     search.classList.add('ob-memory-search');
     toolbar.append(search);
@@ -22,6 +28,7 @@
     document.getElementById('search-input').placeholder = '搜索记忆…';
     bucketSort = 'score';
     currentFilter = 'all';
+    const filters = {sort:'newest', time:'', importance:0, domain:'', tag:''};
     const states = [
       ['all', '全部记忆', () => true],
       ['pinned', '钉选 / 核心准则', b => b.pinned],
@@ -34,39 +41,96 @@
     ];
     window.filterBuckets = function (rows) {
       const state = states.find(item => item[0] === currentFilter);
-      if (state) return rows.filter(state[2]);
-      if (currentFilter.startsWith('tag:')) return rows.filter(b => (b.tags || []).includes(currentFilter.slice(4)));
-      if (currentFilter.startsWith('domain:')) return rows.filter(b => (b.domain || []).includes(currentFilter.slice(7)));
-      return rows;
+      const times = new Map(rows.map(bucket => {
+        const time = Number(bucket.created_epoch_ms) || Date.parse(bucket.created);
+        return [bucket.id, Number.isFinite(time) && time > 0 ? time : 0];
+      }));
+      const cutoff = filters.time ? Date.now() - Number(filters.time) * 86400000 : 0;
+      return rows.filter(bucket =>
+        (!state || state[2](bucket)) &&
+        (!cutoff || times.get(bucket.id) >= cutoff) &&
+        Number(bucket.importance ?? 5) >= filters.importance &&
+        (!filters.domain || (bucket.domain || []).includes(filters.domain)) &&
+        (!filters.tag || (bucket.tags || []).includes(filters.tag))
+      ).sort((a, b) => {
+        const key = {activation:'activation_count', importance:'importance', weight:'score'}[filters.sort];
+        const difference = key ? Number(b[key] || 0) - Number(a[key] || 0) : times.get(b.id) - times.get(a.id);
+        return difference || times.get(b.id) - times.get(a.id) || String(a.id).localeCompare(String(b.id));
+      });
     };
+    // All six chip groups share this renderer and one delegated change handler.
+    function appendGroup(key, title, choices, selected) {
+      const group = document.createElement('fieldset');
+      group.dataset.group = key;
+      const legend = document.createElement('legend');
+      legend.textContent = title;
+      group.append(legend);
+      const options = document.createElement('div');
+      options.className = 'ob-filter-options';
+      choices.forEach(([value, name]) => {
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'ob-filter-chip';
+        button.dataset.filter = key; button.dataset.value = value;
+        button.textContent = name;
+        button.setAttribute('aria-pressed', String(selected === value));
+        options.append(button);
+      });
+      group.append(options); panel.append(group);
+    }
     window.buildFilters = function () {
-      picker.replaceChildren();
+      const focused = panel.contains(document.activeElement) ? document.activeElement : null;
+      const focusKey = focused?.dataset.filter, focusValue = focused?.dataset.value;
+      panel.replaceChildren();
       const tags = new Map(), domains = new Map();
       allBuckets.forEach(bucket => {
         new Set(bucket.tags || []).forEach(tag => tags.set(tag, (tags.get(tag) || 0) + 1));
         new Set(bucket.domain || []).forEach(domain => domains.set(domain, (domains.get(domain) || 0) + 1));
       });
-      const groups = [
-        ['记忆状态', states.map(item => [item[0], item[1], allBuckets.filter(item[2]).length])],
-        ['记忆标签', [...tags].sort(([a], [b]) => a.localeCompare(b, 'zh-CN')).map(([tag, count]) => ['tag:' + tag, '#' + tag, count])],
-        ['记忆分类', [...domains].sort(([a], [b]) => a.localeCompare(b, 'zh-CN')).map(([domain, count]) => ['domain:' + domain, domain, count])]
-      ];
-      groups.forEach(([name, entries]) => {
-        if (!entries.length) return;
-        const group = document.createElement('optgroup');
-        group.label = name;
-        entries.forEach(([key, title, count]) => group.append(new Option(title + ' · ' + count, key)));
-        picker.append(group);
+      if (!states.some(state => state[0] === currentFilter)) currentFilter = 'all';
+      if (!tags.has(filters.tag)) filters.tag = '';
+      if (!domains.has(filters.domain)) filters.domain = '';
+      appendGroup('status', '状态', states.map(([key, title, predicate]) => [key, title + ' · ' + allBuckets.filter(predicate).length]), currentFilter);
+      appendGroup('sort', '排序', [['newest','最新创建'],['activation','回想次数'],['importance','重要性'],['weight','权重']], filters.sort);
+      appendGroup('time', '时间范围', [['','全部'],['7','近7天'],['30','近30天'],['90','近90天']], filters.time);
+      const importance = document.createElement('label');
+      importance.className = 'ob-filter-importance';
+      importance.htmlFor = 'ob-filter-importance';
+      importance.innerHTML = '重要度：<output id="ob-filter-importance-label"></output><input id="ob-filter-importance" type="range" min="0" max="10" step="1">';
+      panel.append(importance);
+      const range = importance.querySelector('input');
+      range.value = filters.importance;
+      const output = importance.querySelector('output');
+      output.value = filters.importance ? '≥ ' + filters.importance : '不限';
+      range.addEventListener('input', () => { output.value = Number(range.value) ? '≥ ' + range.value : '不限'; });
+      range.addEventListener('change', () => { filters.importance = Number(range.value); applyFilters(); });
+      appendGroup('domain', '领域', [['','全部'], ...[...domains].sort(([a], [b]) => a.localeCompare(b, 'zh-CN')).map(([name, count]) => [name, name + ' · ' + count])], filters.domain);
+      if (tags.size) appendGroup('tag', '标签', [['','全部'], ...[...tags].sort(([a], [b]) => a.localeCompare(b, 'zh-CN')).map(([name, count]) => [name, '#' + name + ' · ' + count])], filters.tag);
+      const reset = document.createElement('button');
+      reset.type = 'button'; reset.id = 'ob-filter-reset'; reset.textContent = '重置筛选';
+      reset.addEventListener('click', () => {
+        currentFilter = 'all';
+        Object.assign(filters, {sort:'newest',time:'',importance:0,domain:'',tag:''});
+        applyFilters(); toggle.focus();
       });
-      if (![...picker.options].some(option => option.value === currentFilter)) currentFilter = 'all';
-      picker.value = currentFilter;
+      panel.append(reset);
+      const count = Number(currentFilter !== 'all') + Number(!!filters.time) + Number(filters.importance > 0) + Number(!!filters.domain) + Number(!!filters.tag);
+      toggle.textContent = '筛选与排序' + (count ? ' (' + count + ')' : '') + (panel.hidden ? ' ▾' : ' ▴');
+      if (focusKey) [...panel.querySelectorAll('[data-filter]')].find(button => button.dataset.filter === focusKey && button.dataset.value === focusValue)?.focus({preventScroll:true});
+      else if (focused?.id === 'ob-filter-importance') range.focus({preventScroll:true});
     };
-    picker.addEventListener('change', () => {
-      currentFilter = picker.value;
+    function applyFilters() {
       selectedBucketIds.clear();
+      buildFilters();
       const query = document.getElementById('search-input').value.trim();
       if (query) searchBuckets(query);
       else renderBuckets(filterBuckets(allBuckets));
+    }
+    panel.addEventListener('click', event => {
+      const button = event.target.closest('button[data-filter]');
+      if (!button) return;
+      if (button.dataset.filter === 'status') currentFilter = button.dataset.value;
+      else filters[button.dataset.filter] = button.dataset.value;
+      applyFilters();
     });
     buildFilters();
 
@@ -133,7 +197,11 @@
       if (frame) frame.remove();
       frame = null;
       status.textContent = '';
-      picker.replaceChildren(new Option('全部记忆', 'all'));
+      Object.assign(filters, {sort:'newest',time:'',importance:0,domain:'',tag:''});
+      panel.replaceChildren();
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.textContent = '筛选与排序 ▾';
     });
     const originalUpdate = window.updateStats;
     window.updateStats = function () {

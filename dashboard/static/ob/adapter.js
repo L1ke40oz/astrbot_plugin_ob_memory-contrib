@@ -110,7 +110,7 @@
     if (form) form.addEventListener('input', function () { dirty = true; });
     var actions = document.querySelector('#detail-content .detail-actions');
     if (actions) {
-      actions.querySelectorAll('[onclick*="bucketAnchor"],[onclick*="bucketForget"],[onclick*="openPermanentDelete"]').forEach(function (el) { el.remove(); });
+      actions.querySelectorAll('[onclick*="bucketAnchor"],[onclick*="bucketForget"]').forEach(function (el) { el.remove(); });
     }
     document.querySelectorAll('#detail-content .detail-meta .field').forEach(function (field) {
       var label = field.querySelector('label');
@@ -154,7 +154,7 @@
       if (tab) tab.remove();
       if (view) view.remove();
     });
-    document.querySelectorAll('[onclick*="hardDelete"], [onclick*="openPermanentDelete"], [onclick*="runBucketBatch(\'forget\')"]').forEach(function (button) { button.remove(); });
+    document.querySelectorAll('[onclick*="hardDelete"], [onclick*="runBucketBatch(\'forget\')"]').forEach(function (button) { button.remove(); });
     window.refreshAstrbotSessions = async function () { sessionPromise = null; await ensureSession(); };
     var bar = document.createElement('div');
     bar.id = 'ob-session-bar';
@@ -270,6 +270,52 @@
       renderBuckets(filterBuckets(matches), preservePage);
     };
     window.bucketSaveEdit = saveEdit;
+    document.querySelector('#memory-delete-dialog > p').textContent = '将永久删除所选记忆的正文、标签及关联检索向量，此操作无法撤销；已有导出文件和备份不受影响。';
+    var nativeOpenDelete = window.openPermanentDelete;
+    window.openPermanentDelete = function (ids) {
+      if (!canLeaveEdit('编辑内容尚未保存，放弃修改并打开永久删除确认？')) return;
+      nativeOpenDelete(ids);
+    };
+    window.confirmPermanentDelete = async function () {
+      if (saving || permanentDeleteBusy || !pendingPermanentDeleteIds.length) return;
+      var ids = pendingPermanentDeleteIds.slice();
+      var deletionSession = selectedSession;
+      var button = document.getElementById('memory-delete-confirm');
+      var cancel = document.getElementById('memory-delete-cancel');
+      var error = document.getElementById('memory-delete-error');
+      saving = permanentDeleteBusy = true;
+      button.disabled = cancel.disabled = true;
+      button.textContent = '正在删除…';
+      error.textContent = '';
+      try {
+        var response = await fetch('/api/buckets/permanent-delete', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ids:ids,confirm:true})
+        });
+        var result = await response.json();
+        if (!response.ok) throw Error(result.error || '永久删除失败，请重新登录后重试');
+        (result.deleted || []).forEach(function (id) { selectedBucketIds.delete(id); });
+        document.getElementById('memory-delete-dialog').close();
+        pendingPermanentDeleteIds = [];
+        dirty = false;
+        originalClose();
+        await window.refreshAstrbotSessions();
+        if (selectedSession !== deletionSession) {
+          sessionRevision += 1; searchRevision += 1; bucketLoadGeneration += 1;
+          selectedBucketIds.clear(); allBuckets = []; currentFilter = 'all';
+          document.getElementById('search-input').value = '';
+          document.dispatchEvent(new Event('ob-session-changed'));
+          renderBuckets([]); updateStats(); showView('list');
+        }
+        await loadBuckets();
+        feedback('已永久删除 ' + result.deleted.length + ' 条记忆。');
+      } catch (exception) { error.textContent = exception.message; }
+      finally {
+        saving = permanentDeleteBusy = false;
+        button.disabled = cancel.disabled = false;
+        button.textContent = '确认永久删除';
+      }
+    };
     window.bucketArchive = async function (id) {
       if (!canLeaveEdit('编辑内容尚未保存，放弃修改并归档？')) return;
       if (!confirm('确认归档这条记忆？正文仍会保留。')) return;

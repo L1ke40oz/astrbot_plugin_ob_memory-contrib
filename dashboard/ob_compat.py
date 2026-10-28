@@ -151,6 +151,7 @@ class ObDashboard:
                         "appearance",
                         "plans",
                         "letters",
+                        "permanent-delete",
                     ],
                     "unsupported": [
                         "breath",
@@ -159,7 +160,6 @@ class ObDashboard:
                         "logs",
                         "self",
                         "forget",
-                        "permanent-delete",
                     ],
                 }
             )
@@ -258,6 +258,8 @@ class ObDashboard:
                 return JSONResponse(await self.network(session))
             if endpoint == "buckets/batch" and method == "POST":
                 return await self.batch(request, session)
+            if endpoint == "buckets/permanent-delete" and method == "POST":
+                return await self.permanent_delete(request, session)
             match = re.fullmatch(
                 r"bucket/([^/]+)(?:/(edit|pin|resolve|archive))?", endpoint
             )
@@ -413,6 +415,50 @@ class ObDashboard:
             )
             return JSONResponse({"ok": True, **result})
         return JSONResponse({"error": "不支持的计划或信件操作"}, status_code=405)
+
+    async def permanent_delete(self, request, session):
+        """Delete confirmed ordinary memories atomically within one session.
+
+        Args:
+            request: The authenticated request containing IDs and confirmation.
+            session: The validated dashboard session.
+
+        Returns:
+            A response listing the permanently deleted memory IDs.
+
+        Raises:
+            ValueError: Confirmation, IDs, or session ownership are invalid.
+        """
+        body = await request.json()
+        if not isinstance(body, dict) or body.get("confirm") is not True:
+            raise ValueError("请确认后再永久删除记忆")
+        ids = body.get("ids")
+        if (
+            not isinstance(ids, list)
+            or not 1 <= len(ids) <= 100
+            or any(not isinstance(item, str) or not item.strip() for item in ids)
+        ):
+            raise ValueError("每次选择 1–100 条记忆")
+        ids = list(dict.fromkeys(ids))
+        db = self.plugin.manager.db
+        async with db.transaction() as connection:
+            for bucket_id in ids:
+                bucket = await db.fetch_one(
+                    "SELECT id FROM memories WHERE id=? AND session_id=?",
+                    (bucket_id, session),
+                )
+                if bucket is None:
+                    raise ValueError("所选记忆不属于当前会话或已不存在，请刷新后重试")
+            await connection.executemany(
+                "DELETE FROM memories WHERE id=? AND session_id=?",
+                [(bucket_id, session) for bucket_id in ids],
+            )
+            # Keep the same defensive vector cleanup as MemoryManager.delete.
+            await connection.executemany(
+                "DELETE FROM embeddings WHERE bucket_id=?",
+                [(bucket_id,) for bucket_id in ids],
+            )
+        return JSONResponse({"ok": True, "deleted": ids})
 
     async def batch(self, request, session):
         body = await request.json()
