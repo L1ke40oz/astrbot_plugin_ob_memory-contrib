@@ -45,6 +45,7 @@ def bucket_payload(bucket):
         "pinned": bucket.pinned,
         "resolved": bucket.resolved,
         "digested": bucket.digested,
+        "dont_surface": bucket.digested,
         "triggered_by": bucket.source_bucket_id,
         "activation_count": bucket.activation_count,
         "created": _iso(bucket.created_at),
@@ -258,10 +259,12 @@ class ObDashboard:
                 return JSONResponse(await self.network(session))
             if endpoint == "buckets/batch" and method == "POST":
                 return await self.batch(request, session)
+            if endpoint == "buckets/forget" and method == "POST":
+                return await self.batch_forget(request, session)
             if endpoint == "buckets/permanent-delete" and method == "POST":
                 return await self.permanent_delete(request, session)
             match = re.fullmatch(
-                r"bucket/([^/]+)(?:/(edit|pin|resolve|archive))?", endpoint
+                r"bucket/([^/]+)(?:/(edit|pin|resolve|archive|forget))?", endpoint
             )
             if match:
                 bucket_id, action = match.groups()
@@ -298,6 +301,7 @@ class ObDashboard:
                     ("POST", "pin"),
                     ("POST", "resolve"),
                     ("POST", "archive"),
+                    ("POST", "forget"),
                 }:
                     return await self.update(request, session, bucket, action)
             return JSONResponse(
@@ -495,6 +499,36 @@ class ObDashboard:
                     raise ValueError("记忆在操作过程中已不存在，请刷新后重试")
         return JSONResponse({"ok": True, "updated": ids})
 
+    async def batch_forget(self, request, session):
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise ValueError("请求必须是 JSON 对象")
+        ids = body.get("ids")
+        if (
+            not isinstance(ids, list)
+            or not 1 <= len(ids) <= 100
+            or any(not isinstance(i, str) or not i for i in ids)
+        ):
+            raise ValueError("每次选择 1–100 条记忆")
+        dont_surface = bool(body.get("dont_surface", True))
+        ids = list(dict.fromkeys(ids))
+        for bucket_id in ids:
+            bucket = (
+                await self.plugin.manager.get(session, bucket_id) if session else None
+            )
+            if bucket is None:
+                raise ValueError("所选记忆不属于当前会话或已不存在")
+        async with self.plugin.manager.db.transaction():
+            for bucket_id in ids:
+                if (
+                    await self.plugin.manager.update(
+                        session, bucket_id, digested=dont_surface
+                    )
+                    is None
+                ):
+                    raise ValueError("记忆在操作过程中已不存在，请刷新后重试")
+        return JSONResponse({"ok": True, "updated": ids})
+
     async def update(self, request, session, bucket, action):
         fields = {}
         if action == "pin":
@@ -522,6 +556,8 @@ class ObDashboard:
             if bucket.pinned:
                 raise ValueError("请先解除钉选，再归档记忆")
             fields = {"bucket_type": "archived"}
+        elif action == "forget":
+            fields = {"digested": not bucket.digested}
         else:
             body = await request.json()
             if not isinstance(body, dict):
