@@ -53,7 +53,8 @@
           '#frontend-switch{width:auto!important;padding:0 8px!important;font-size:11px!important;flex-shrink:0}' +
           '.frontend-switch-button svg{width:15px;height:15px;flex-shrink:0;pointer-events:none}' +
           '.frontend-switch-button:focus-visible{outline:2px solid currentColor!important;outline-offset:3px}' +
-          '#frontend-switch-login{display:flex!important;margin:18px auto 0;padding:7px 12px}' +
+          '#frontend-switch-login{display:flex!important;width:max-content!important;max-width:100%;min-height:0;flex:none;margin:10px auto 0;padding:4px;gap:4px;border-radius:0;color:var(--text-dim);font-size:10px;font-weight:400;line-height:normal}' +
+          '#frontend-switch-login svg{width:14px;height:14px}' +
           '@media(max-width:600px){.top-bar>div:last-child>span{display:none}}' +
           '@media(max-width:380px){#frontend-switch .frontend-switch-text{display:none}#frontend-switch{width:30px!important;padding:0!important}}';
         doc.head.appendChild(styleTag);
@@ -68,8 +69,16 @@
         }
         var logout = doc.querySelector('button[onclick*="doLogout"]');
         if (logout) logout.after(makeButton('frontend-switch'));
-        var login = doc.querySelector('#auth-overlay > div, #loginPage');
-        if (login) login.appendChild(makeButton('frontend-switch-login'));
+        var login = doc.querySelector('#auth-overlay > div, #loginPage .login-card');
+        if (login) {
+          var loginSwitch = makeButton('frontend-switch-login');
+          var themeButton = login.querySelector('button[onclick*="toggleTheme"], button[onclick*="toggleDashboardTheme"]');
+          if (themeButton) {
+            themeButton.after(loginSwitch);
+            var themeStyle = frame.contentWindow.getComputedStyle(themeButton);
+            loginSwitch.style.font = themeStyle.font;
+          } else login.appendChild(loginSwitch);
+        }
         function sync() {
           var style = frame.contentWindow.getComputedStyle(doc.body);
           var bg = style.getPropertyValue('--bg').trim() || '#F4F0F8';

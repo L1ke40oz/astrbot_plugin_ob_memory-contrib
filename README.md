@@ -10,6 +10,8 @@
 
 继续访问原来的仪表盘地址，点击顶部 **「退出」右侧的「切换界面」** 按钮即可往返切换，浏览器地址栏保持不变。浏览器会记住上次选择；两套界面共用登录账户、SQLite 记忆与当前会话，切换不复制或迁移数据库。
 
+原版登录页的「切换界面」位于登录卡片内、「切换主题」正下方，使用一致的文字颜色和字号，不占用额外的整屏布局空间。
+
 OB 界面的导航菜单下方显示当前会话的六项统计：**总记忆、核心准则、感受、活跃中、已沉底、已隐藏**。计数和原界面采用相同规则，随会话切换和记忆修改刷新，不受当前搜索或列表分页影响。部分状态可重叠；已沉底包含非 feel 的归档或已解决记忆，已隐藏对应 digested。
 
 OB 界面来自修改后的 Ombre Brain 3.7.0，包含淡紫粉色、星雪暮色、紫雾三套色系、浅色 / 深色 / 跟随系统，以及自定义图标和可拖动小伙伴。可使用会话选择、记忆列表和分页、状态 / 标签筛选、搜索、正文编辑、钉选、沉底、归档、批量沉底 / 归档和记忆星河。插件配置中的 `dashboard_session_id` 锁定仍然生效；OB 界面中的所有读写均限定在当前会话。
@@ -20,7 +22,9 @@ OB 界面已移除日志、导入、Breath 模拟和锚点菜单，保留记忆�
 
 星点主层约 4.8 秒完成一次明暗循环，另一层约 7.2 秒。记忆复选框右侧的紫色圆角底座用于显示类型 / 状态图标：气泡是普通记忆，图钉是钉选，表情是 Feel 感受，叶子是已消化，月亮是已解决；将鼠标放到图标上可查看说明。Feel 的嘴形随情绪效价变化，眼睛随唤醒程度变化。Lucide 1.24.0 图标库已改为插件本地资源，不依赖外部图标 CDN，许可见 `dashboard/static/ob/LUCIDE-LICENSE.txt`。
 
-**筛选与搜索**：删除原来的「全部 / 钉选 / Feel / 标签」按钮行及「时间顺序」控件。列表工具栏左侧的「记忆筛选」默认全部，分组列出状态、完整标签及记忆分类，显示各项数量；右侧是从顶部移下来的小搜索框。搜索与当前筛选取交集，清空搜索保留筛选，更换会话重置为全部；列表继续按综合分排列。统计始终显示整个会话的记忆数量。
+**筛选与搜索**：列表工具栏左侧的「筛选与排序」沿用原版的折叠面板，右侧保留小搜索框。面板包含状态、排序、时间范围、重要度和领域，并保留完整标签筛选。默认显示全部、最新创建优先；还可按回想次数、重要性、权重排序，限定近 7 / 30 / 90 天，使用 0–10 的最低重要度滑杆。状态、时间、重要度、领域、标签和搜索可同时生效，清空搜索保留筛选，更换会话重置筛选。统计始终显示整个会话的记忆数量。
+
+**永久删除**：新版记忆详情页和列表批量工具栏均提供入口。确认框列出待删除记忆并说明不可撤销；取消不会改动数据。确认后删除当前会话所选普通记忆及关联检索向量，每批最多 100 条。服务端要求明确确认并检查全部目标的会话归属，删除与清理在同一事务中执行；任何一步失败均回滚，不会只删一半。删除中阻止重复提交、切换会话和切换界面，完成后刷新列表、统计与会话数量。计划、信件和已有导出 / 备份不受此操作影响。
 
 **记忆星河**：原「记忆网络」入口改为「记忆星河」，参考用户提供的 `galaxy-template.html` 和搭建教程。每条普通记忆对应一颗星，较早的记忆靠近中心，重要 / 钉选的星更亮，颜色跟随分类。拖动旋转、滚轮或双指缩放、点击星星阅读原文；同分类或共享标签的记忆会连成星座，也可从「寻找一颗记忆星」菜单选择。底部「查看 / 编辑记忆」进入原详情面板。支持暂停、回到远景及桌面沉浸查看；离开星河页暂停渲染，切换会话销毁旧星河。没有记忆时显示空状态，不填充示例记忆；浏览器不支持 3D 时仍可从菜单阅读原文。
 
@@ -34,7 +38,9 @@ OB 界面已移除日志、导入、Breath 模拟和锚点菜单，保留记忆�
 
 **Plans and letters (English)**: The OB dashboard now provides persistent plan creation, weight, editing, lifecycle transitions, and change history. `memory_plan` and `memory_letter` are registered AstrBot tools scoped to the resolved conversation. Original letters are stored separately from ordinary recall and decay. Only their author can edit, change locks, or archive them; recipient-facing lists, details, searches, and model context redact locked titles and bodies. Timed locks require timezone-aware timestamps. Schema v3 adds domain tables without rewriting existing memories. The legacy memory ZIP covers ordinary memories only; use a stopped-plugin database backup for complete domain recovery.
 
-**Appearance and discovery (English)**: Small stars twinkle gently across every palette and theme. The old filter-button strip and time-order control are replaced by one state/tag/category selector beside a smaller search field, moved out of the header. Search intersects the selected filter; the default is all memories. The former Network tab is now Memory Galaxy: drag to orbit, zoom, select a star to read its exact original text and highlight related memories, or use the accessible memory selector. Editing opens the existing detail panel. The locally bundled Three.js 0.160.0 renderer needs no CDN or public memory export. Existing authenticated APIs provide ordinary memories for the resolved session only. Empty sessions contain no demo stars; unavailable 3D falls back to menu-based reading. Hidden tabs stop rendering, session changes destroy the old scene, and reduced-motion preferences disable background twinkling and pause galaxy motion.
+**Appearance and discovery (English)**: Small stars twinkle gently across every palette and theme. A collapsible filter panel beside the smaller search field now mirrors the original dashboard: state, four sort modes, 7/30/90-day ranges, minimum importance, and domain, with tags retained as an additional group. Criteria intersect with search; defaults are all memories and newest first. The classic login switch sits inside the card directly below the theme control with matching text styling. The former Network tab is now Memory Galaxy: drag to orbit, zoom, select a star to read its exact original text and highlight related memories, or use the accessible memory selector. Editing opens the existing detail panel. The locally bundled Three.js 0.160.0 renderer needs no CDN or public memory export. Existing authenticated APIs provide ordinary memories for the resolved session only. Empty sessions contain no demo stars; unavailable 3D falls back to menu-based reading. Hidden tabs stop rendering, session changes destroy the old scene, and reduced-motion preferences disable background twinkling and pause galaxy motion.
+
+**Permanent deletion (English)**: Single-memory details and the bulk toolbar expose a confirmation dialog. Confirmed requests delete up to 100 ordinary memories and their vectors atomically after validating every target against the current session. Cancellation has no effect; cleanup failures roll back the entire batch. Duplicate submissions and conversation/interface switching are blocked during deletion. Lists, statistics, and session counts refresh afterward, including recovery when a conversation becomes empty. Plans, letters, exports, and backups are unaffected.
 
 **Memory icons (English)**: The rounded icon beside each checkbox indicates memory type or status, with a tooltip and accessible label. A speech bubble means ordinary memory, a pin means pinned, a face means Feel, a leaf means digested, and a moon means resolved. Feel faces are drawn inline from valence and arousal. Lucide 1.24.0 is bundled locally to prevent blank icons when an external CDN is unavailable. Background twinkle cycles now take approximately 4.8 and 7.2 seconds.
 

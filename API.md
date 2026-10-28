@@ -23,7 +23,7 @@
 
 原有 `/api/*` 响应结构保持不变。新版界面将请求发送到独立的 `/ob/api/*` 命名空间，所有业务请求可携带 `session` 查询参数；配置指定 `dashboard_session_id` 时优先执行锁定，拒绝其他会话。省略会话时采用最近活跃会话。
 
-OB 列表的状态、标签和分类筛选在当前会话完整数组上执行，并与搜索结果取交集。记忆星河复用 `GET /ob/api/buckets?sort=created_asc`；父页面完成共享认证和会话解析后，将记录发送给同源星河 iframe。消息同时校验 origin 和父子窗口来源；换会话会销毁旧 iframe，过期响应不再投递。不生成可公开读取的记忆 JSON，星河静态资源中不含示例或真实记忆。`/ob/api/network` 概念图接口继续保留兼容，OB 导航展示星河。
+OB 折叠筛选面板在当前会话完整数组上执行状态、时间范围、最低重要度、领域及标签的交集筛选，并与搜索结果取交集。最新创建、回想次数、重要性和权重四种排序在前端完成，无需增加 API 排序参数。记忆星河复用 `GET /ob/api/buckets?sort=created_asc`；父页面完成共享认证和会话解析后，将记录发送给同源星河 iframe。消息同时校验 origin 和父子窗口来源；换会话会销毁旧 iframe，过期响应不再投递。不生成可公开读取的记忆 JSON，星河静态资源中不含示例或真实记忆。`/ob/api/network` 概念图接口继续保留兼容，OB 导航展示星河。
 
 The Galaxy tab reuses the authenticated bucket API and validates same-origin parent/frame messages. Static assets contain no memory data; there is no public JSON export or new data endpoint. The legacy concept-network API remains available.
 
@@ -35,6 +35,7 @@ The Galaxy tab reuses the authenticated bucket API and validates same-origin par
 - `PATCH /ob/api/bucket/{id}/edit`：支持名称、正文、域、标签、重要度、类型和 pinned / resolved / digested；不支持字段返回 400，不静默丢弃。更新正文时复用已有 embedding 服务。
 - `POST /ob/api/bucket/{id}/pin|resolve|archive`：切换钉选、切换已解决、归档；钉选记忆需先解除钉选才能归档。
 - `POST /ob/api/buckets/batch`：`{"ids":["..."],"action":"resolve|archive"}`；最多 100 条，写入前检查所有目标属于当前会话，事务内保存。
+- `POST /ob/api/buckets/permanent-delete`：`{"ids":["..."],"confirm":true}`；共享登录认证，执行配置会话锁。需提供 1–100 个非空字符串 ID，confirm 必须是布尔 true。事务内先核对全部目标属于当前会话且仍存在，再删除普通记忆与关联向量；任一步失败整批回滚。成功返回 `{"ok":true,"deleted":["..."]}`，重复 ID 去重；未确认、无效 ID、跨会话或已不存在的目标返回 400，未登录返回 401。不会删除计划、信件或已有导出 / 备份。
 - `GET /ob/api/network?mode=concept`：基于标签、域和正文双链的概念网络；最多 150 节点。向量投影尚未实现，返回 501。
 - `GET /ob/api/config`：仅返回提供给新界面的插件能力摘要，不返回 API 密钥。
 - `GET /ob/api/heartbeat`、`GET /ob/api/version`：插件运行和版本摘要。
@@ -53,7 +54,9 @@ Schema v3 使用 `memory_plans`、`memory_letters` 专表；普通记忆 API、�
 
 For clients: plans and correspondence use separate persistent tables. Dashboard callers are always the human side; model tools always use the AI side. Locked titles and bodies are redacted before filtering or serialization. Original memory endpoints never expose correspondence. Only authors may edit or archive letters. Optimistic revision checks reject concurrent lost updates with HTTP 409.
 
-其余新版 OB 功能返回 501；不以空列表或成功响应伪装能力。不会将永久删除、主动遗忘等新语义映射为插件旧版本中的其他状态。
+Permanent deletion requires authenticated, session-scoped IDs and a literal boolean confirmation. All selected memories and vectors are deleted in one transaction, with full rollback on failure; plans and correspondence are separate. Remaining unsupported OB features return 501 rather than simulating success.
+
+其余新版 OB 功能返回 501；不以空列表或成功响应伪装能力。永久删除执行数据库删除，不映射为归档或已解决；主动遗忘等未适配语义仍不开放。
 
 ---
 
