@@ -5950,7 +5950,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function _currentBucketPageItems() {
-  var visible = (_curBuckets || []).filter(function(b) { return !b.dont_surface; });
+  var isDigestedFilter = (currentFilter === 'digested');
+  var visible = isDigestedFilter ? (_curBuckets || []) : (_curBuckets || []).filter(function(b) { return !b.dont_surface; });
   if (!visible.length) return [];
   var totalPages = Math.ceil(visible.length / BUCKETS_PER_PAGE);
   var page = _normalizeBucketPage(bucketPage, totalPages, 1);
@@ -6330,6 +6331,8 @@ function _normalizeBucketPage(value, totalPages, fallbackPage) {
 
 function _visibleBucketTotalPages() {
   var visibleCount = (_curBuckets || []).filter(function(b) { return !b.dont_surface; }).length;
+  var isDigestedFilter = (currentFilter === 'digested');
+  var visibleCount = isDigestedFilter ? (_curBuckets || []).length : (_curBuckets || []).filter(function(b) { return !b.dont_surface; }).length;
   return Math.max(1, Math.ceil(visibleCount / BUCKETS_PER_PAGE));
 }
 
@@ -6365,10 +6368,10 @@ function _bucketPagerHtml(total, totalPages) {
 
 function _paintBuckets() {
   var list = document.getElementById('bucket-list');
-  // iter 1.9 C: 把已主动遗忘的桶单独折叠到下方区域，主列表只显示活跃的
-  // Split forgotten ones into the dedicated <details>; the main list stays clean.
-  var forgotten = _curBuckets.filter(function(b) { return b.dont_surface; });
-  var visible = _curBuckets.filter(function(b) { return !b.dont_surface; });
+  // 当用户主动筛选「已消化」时，允许在主列表正常查看；否则将已消化/遗忘的桶分流
+  var isDigestedFilter = (currentFilter === 'digested');
+  var forgotten = isDigestedFilter ? [] : _curBuckets.filter(function(b) { return b.dont_surface; });
+  var visible = isDigestedFilter ? _curBuckets : _curBuckets.filter(function(b) { return !b.dont_surface; });
   renderForgottenGroup(forgotten);
   if (!visible.length) {
     bucketPage = 1;
