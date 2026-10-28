@@ -1,4 +1,64 @@
-/* 只覆盖插件需要调整的入口，三套主题及小伙伴使用迁入的 OB 原样式。 */
+/* 记忆卡片底部操作栏 */
+.bucket-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border, rgba(0, 0, 0, 0.06));
+}
+.bucket-quick-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: 6px;
+  background: var(--surface, rgba(255, 255, 255, 0.5));
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+  transition: all 0.18s ease;
+  user-select: none;
+  white-space: nowrap;
+}
+.bucket-quick-btn:hover {
+  background: var(--theme-tint, rgba(0, 0, 0, 0.05));
+  color: var(--accent-ink, var(--accent));
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+.bucket-quick-btn.active {
+  color: var(--accent-ink, var(--accent));
+  border-color: var(--accent);
+  background: var(--theme-tint, rgba(0, 0, 0, 0.08));
+  font-weight: 500;
+}
+.bucket-quick-btn.danger:hover {
+  color: var(--negative, #e5484d);
+  background: rgba(229, 72, 77, 0.1);
+  border-color: rgba(229, 72, 77, 0.25);
+}
+.bucket-quick-btn svg {
+  width: 13px;
+  height: 13px;
+}
+@media (max-width: 600px) {
+  .bucket-card-actions {
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .bucket-quick-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 0 4px;
+    font-size: 11px;
+  }
+}
+
 .astrbot-ob #btn-restart, .astrbot-ob #anchor-counter, .astrbot-ob #owner-badge,
 .astrbot-ob #self-fab, .astrbot-ob #self-panel, .astrbot-ob #self-overlay,
 .astrbot-ob #embed-warn-banner, .astrbot-ob #forgotten-group,

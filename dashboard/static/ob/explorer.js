@@ -27,7 +27,7 @@
     search.querySelector('button').setAttribute('aria-label', '搜索记忆');
     document.getElementById('search-input').placeholder = '搜索记忆…';
     bucketSort = 'score';
-    currentFilter = 'all';
+    currentFilter = 'active';
     const filters = {sort:'newest', time:'', importance:0, domain:'', tag:''};
     const states = [
       ['all', '全部记忆', () => true],

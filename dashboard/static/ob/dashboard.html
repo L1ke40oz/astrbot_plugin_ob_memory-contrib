@@ -5902,7 +5902,7 @@ async function readJsonSafe(resp) {
 
 const BASE = location.origin;
 let allBuckets = [];
-let currentFilter = 'all';
+let currentFilter = 'active';
 var BUCKET_SORT_MODES = ['score', 'created_desc', 'created_asc'];
 var bucketSort = 'score';
 try {
@@ -6244,6 +6244,7 @@ function buildFilters() {
   const filters = document.getElementById('filters');
   const types = [
     { key: 'all', label: '全部' },
+    { key: 'active', label: '<i data-lucide="activity"></i> 活跃中' },
     { key: 'pinned', label: '<i data-lucide="pin"></i> 钉选' },
     { key: 'feel', label: '<i data-lucide="droplet"></i> Feel' },
     { key: 'unresolved', label: '<i data-lucide="zap"></i> 未解决' },
@@ -6291,6 +6292,7 @@ function buildFilters() {
 
 function filterBuckets(buckets) {
   if (currentFilter === 'all') return buckets;
+  if (currentFilter === 'active') return buckets.filter(function(b) { return !b.resolved && !b.pinned && !b.digested && b.type !== 'feel' && b.type !== 'archived'; });
   if (currentFilter === 'pinned') return buckets.filter(function(b) { return b.pinned; });
   if (currentFilter === 'feel') return buckets.filter(function(b) { return b.type === 'feel'; });
   if (currentFilter === 'unresolved') return buckets.filter(function(b) { return !b.resolved && b.type !== 'permanent' && !b.pinned; });
@@ -6420,6 +6422,22 @@ function _paintBuckets() {
       ? '<span class="domain-pill">' + esc((b.domain || []).join(', ')) + '</span>'
       : '';
     var emotionHtml = '<span class="emotion" style="display:inline-flex;align-items:center;gap:3px;"><span class="v-bar"><span class="v-dot" style="left:' + vPos + '%"></span></span>' + modelV + '</span>';
+    var resolveIcon = b.resolved ? 'rotate-ccw' : 'moon';
+    var resolveTitle = b.resolved ? '激活（取消沉底）' : '沉底（标记已解决）';
+    var resolveLabel = b.resolved ? '激活' : '沉底';
+    var pinIcon = b.pinned ? 'pin-off' : 'pin';
+    var pinTitle = b.pinned ? '取消钉选' : '钉选（永久置顶）';
+    var pinLabel = b.pinned ? '解钉' : '钉选';
+    var forgetIcon = 'leaf';
+    var forgetTitle = b.dont_surface ? '取消隐藏（重新允许浮现）' : '隐藏（仅搜索时唤醒）';
+    var forgetLabel = b.dont_surface ? '显示' : '隐藏';
+    var actionsHtml = '<div class="bucket-card-actions">' +
+      '<button type="button" class="bucket-quick-btn' + (b.dont_surface ? ' active' : '') + '" title="' + forgetTitle + '" onclick="quickToggleForget(event,\'' + escAttr(b.id) + '\')"><i data-lucide="' + forgetIcon + '"></i><span>' + forgetLabel + '</span></button>' +
+      '<button type="button" class="bucket-quick-btn' + (b.resolved ? ' active' : '') + '" title="' + resolveTitle + '" onclick="quickToggleResolve(event,\'' + escAttr(b.id) + '\')"><i data-lucide="' + resolveIcon + '"></i><span>' + resolveLabel + '</span></button>' +
+      '<button type="button" class="bucket-quick-btn' + (b.pinned ? ' active' : '') + '" title="' + pinTitle + '" onclick="quickTogglePin(event,\'' + escAttr(b.id) + '\')"><i data-lucide="' + pinIcon + '"></i><span>' + pinLabel + '</span></button>' +
+      '<button type="button" class="bucket-quick-btn" title="编辑记忆" onclick="quickEditBucket(event,\'' + escAttr(b.id) + '\')"><i data-lucide="edit-3"></i><span>编辑</span></button>' +
+      '<button type="button" class="bucket-quick-btn danger" title="删除记忆" onclick="quickDeleteBucket(event,\'' + escAttr(b.id) + '\')"><i data-lucide="trash-2"></i><span>删除</span></button>' +
+    '</div>';
     return '<div class="' + rowCls + '" data-id="' + escAttr(b.id) + '" ' + rowClick + ' style="cursor:pointer;' + inlineStyle + '">' +
       '<div class="bucket-row-top">' +
         '<input class="bucket-select" type="checkbox" data-id="' + escAttr(b.id) + '" onclick="event.stopPropagation()" onchange="toggleBucketSelection(this.dataset.id,this.checked)"' + (selectedBucketIds.has(b.id) ? ' checked' : '') + '>' +
@@ -6432,7 +6450,10 @@ function _paintBuckets() {
         '</div>' +
         '<span class="time" title="' + escAttr(timeTitle) + '">' + esc(timeLabel) + '</span>' +
       '</div>' +
-      '<div class="bucket-row-bottom"><span class="preview">' + esc(b.content_preview) + '</span></div>' +
+      '<div class="bucket-row-bottom">' +
+        '<span class="preview">' + esc(b.content_preview) + '</span>' +
+        actionsHtml +
+      '</div>' +
     '</div>';
   }).join('') + _bucketPagerHtml(visible.length, totalPages);
   if (window.lucide) lucide.createIcons();
@@ -6832,6 +6853,58 @@ async function bucketsForgetAllow() {
     if (!res.ok) throw new Error(await res.text());
     loadBuckets();
   } catch (e) { alert('批量恢复失败 / Bulk restore failed: ' + e.message); }
+}
+
+async function quickToggleForget(e, id) {
+  if (e) e.stopPropagation();
+  try {
+    var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/forget', { method: 'POST' });
+    if (!res.ok) throw new Error(await res.text());
+    if (window.ObPet) ObPet.react('forget');
+    await loadBuckets();
+  } catch (err) { alert('隐藏/消化状态切换失败: ' + err.message); }
+}
+
+async function quickToggleResolve(e, id) {
+  if (e) e.stopPropagation();
+  try {
+    var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/resolve', { method: 'POST' });
+    if (!res.ok) throw new Error(await res.text());
+    await loadBuckets();
+  } catch (err) { alert('沉底状态切换失败: ' + err.message); }
+}
+
+async function quickTogglePin(e, id) {
+  if (e) e.stopPropagation();
+  try {
+    var current = (allBuckets || []).find(function(b) { return b.id === id; });
+    var body = {};
+    if (current && current.pinned) {
+      body.importance = 5;
+    }
+    var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/pin', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(await res.text());
+    await loadBuckets();
+  } catch (err) { alert('钉选切换失败: ' + err.message); }
+}
+
+async function quickDeleteBucket(e, id) {
+  if (e) e.stopPropagation();
+  openPermanentDelete([id]);
+}
+
+async function quickEditBucket(e, id) {
+  if (e) e.stopPropagation();
+  await showDetail(id);
+  var editForm = document.getElementById('bucket-edit-form');
+  if (editForm) {
+    editForm.open = true;
+    editForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
 }
 
 async function bucketResolve(id) {

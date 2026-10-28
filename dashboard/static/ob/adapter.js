@@ -203,7 +203,7 @@
       closeDetail(); selectedBucketIds.clear();
       bucketLoadGeneration += 1;
       // 清空上一会话的列表、选择与图；异步响应不能继续呈现旧会话。
-      allBuckets = []; currentFilter = 'all';
+      allBuckets = []; currentFilter = 'active';
       document.getElementById('search-input').value = '';
       renderBuckets([]); updateStats();
       showView('list');
@@ -302,7 +302,7 @@
         await window.refreshAstrbotSessions();
         if (selectedSession !== deletionSession) {
           sessionRevision += 1; searchRevision += 1; bucketLoadGeneration += 1;
-          selectedBucketIds.clear(); allBuckets = []; currentFilter = 'all';
+          selectedBucketIds.clear(); allBuckets = []; currentFilter = 'active';
           document.getElementById('search-input').value = '';
           document.dispatchEvent(new Event('ob-session-changed'));
           renderBuckets([]); updateStats(); showView('list');
