@@ -1,15 +1,110 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="auth-pending">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 登录状态确认前只露出纸色底：大页面分段到达时，不先画出面板或旧样式。 -->
+<style>html.auth-pending,html.auth-pending body{background:#f3f1fb!important}html.auth-pending body>:not(#auth-overlay):not(.ob-cover-press-ripple):not(.ob-cover-waterlight){visibility:hidden!important}html[data-palette="violet-mist"] body.dreamcloud {
+  --bg: #F4F0F8;
+  --bg-gradient: linear-gradient(145deg,#F4F0F8,#E9E0F1 55%,#F4F0F8);
+  --surface: #FAF7FD;
+  --surface-solid: #EEE7F5;
+  --border: #D9CCE8;
+  --border-strong: #9B89B3;
+  --text: #3D3450;
+  --text-dim: #655675;
+  --text-light: #716181;
+  --accent: #9B89B3;
+  --accent-ink: #655078;
+  --accent-light: #D9CCE8;
+  --accent-glow: rgba(155,137,179,.2);
+  --positive: #426D58;
+  --negative: #AD414F;
+  --warning: #806025;
+  --shadow-light: rgba(250,247,253,.8);
+  --shadow-dark: rgba(61,52,80,.12);
+  --shadow-dark-subtle: rgba(61,52,80,.06);
+  --lcd: #EEE7F5;
+  --lcd-text: #3D3450;
+  --lcd-dim: #655675;
+  --lcd-glow: rgba(155,137,179,.12);
+  --theme-input: #FAF7FD;
+  --theme-tint: #E8DFF1;
+  --theme-translucent: rgba(250,247,253,.88);
+  --theme-nav-active: #D9CCE8;
+  --theme-accent-text: #655078;
+  --theme-accent-strong: #AB9ABD;
+  --theme-button-text: #241C33;
+  --theme-danger-text: #FAF7FD;
+  --theme-welcome-glow: rgba(217,204,232,.3);
+  --theme-header: rgba(244,240,248,.94);
+  --theme-mist-a: #E9E0F1;
+  --theme-mist-b: #F0EAF6;
+  --theme-overlay: rgba(250,247,253,.98);
+}
+html[data-palette="violet-mist"][data-theme="dark"] body.dreamcloud {
+  --bg: #1B1A2E;
+  --bg-gradient: linear-gradient(145deg,#29243E,#1B1A2E 55%,#302641);
+  --surface: #262239;
+  --surface-solid: #211E34;
+  --border: #493C60;
+  --border-strong: #9D8DC2;
+  --text: #F1ECF7;
+  --text-dim: #C5B9DB;
+  --text-light: #B6A7CD;
+  --accent: #5F4B8B;
+  --accent-ink: #B9A9D8;
+  --accent-light: #9D8DC2;
+  --accent-glow: rgba(157,141,194,.24);
+  --positive: #A0C8B4;
+  --negative: #EEA4B4;
+  --warning: #DDC28F;
+  --shadow-light: transparent;
+  --shadow-dark: rgba(15,12,28,.4);
+  --shadow-dark-subtle: rgba(15,12,28,.24);
+  --lcd: #262239;
+  --lcd-text: #F1ECF7;
+  --lcd-dim: #C5B9DB;
+  --lcd-glow: rgba(157,141,194,.16);
+  --theme-input: #211E34;
+  --theme-tint: #332B49;
+  --theme-translucent: rgba(38,34,57,.92);
+  --theme-nav-active: #403354;
+  --theme-accent-text: #B9A9D8;
+  --theme-accent-strong: #6E5899;
+  --theme-button-text: #F1ECF7;
+  --theme-danger-text: #1B1A2E;
+  --theme-welcome-glow: rgba(95,75,139,.2);
+  --theme-header: rgba(27,26,46,.95);
+  --theme-mist-a: #2A2440;
+  --theme-mist-b: #252038;
+  --theme-overlay: rgba(38,34,57,.98);
+}
+html[data-palette="violet-mist"] .dreamcloud .header { border-bottom-color: var(--border); }
+html[data-palette="violet-mist"] .dreamcloud .bucket-row:hover { background: var(--surface) !important; }
+html[data-palette="violet-mist"] .dreamcloud :is(button, input, select, textarea, a, summary):focus-visible {
+  outline-color: var(--accent-ink) !important;
+}
+html[data-palette="violet-mist"] .dreamcloud input:is([type=checkbox],[type=radio]) { accent-color: var(--accent-ink) !important; }
+html[data-palette="violet-mist"] .dreamcloud .palette-option input:checked + .palette-option-body {
+  border-color: var(--accent-ink); box-shadow: 0 0 0 1px var(--accent-ink);
+}
+html[data-palette="violet-mist"] .dreamcloud .palette-option input:focus-visible + .palette-option-body { outline-color: var(--accent-ink); }
+html[data-palette="violet-mist"] .dreamcloud .self-filter-btn.active { color: var(--theme-button-text); }
+html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var(--theme-danger-text) !important; }
+
+</style>
 <meta name="referrer" content="no-referrer">
-<title>Ombre Brain · AstrBot</title>
+<title>Ombre Brain</title>
 <meta name="theme-color" content="#fff9f6">
 <link rel="icon" type="image/png" href="/ob/static/brand-icon.png">
-<link rel="apple-touch-icon" href="/ob/static/brand-icon.png">
+<link rel="apple-touch-icon" href="/ob/static/app-icon-180.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ombre">
 <link rel="manifest" href="/ob/static/manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&family=Noto+Sans+SC:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<!-- 网络字体不阻塞首屏：国内连 Google Fonts 慢时先用本地字体，加载到再替换。 -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600&family=Noto+Sans+SC:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script src="/ob/static/lucide.min.js" defer></script>
 <script>
 (function () {
@@ -21,7 +116,7 @@
   function read(key) {
     try { return localStorage.getItem(key); } catch (_) { return null; }
   }
-  function validPalette(value) { return value === 'lilac' || value === 'snowfall' || value === 'violet-mist'; }
+  function validPalette(value) { return ['lilac','sand','mist','snowfall','violet-mist'].includes(value); }
   function validMode(value) { return value === 'light' || value === 'dark' || value === 'system'; }
   function restore() {
     var savedPalette = read(paletteKey);
@@ -37,8 +132,10 @@
     document.documentElement.dataset.palette = palette;
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
-    var colors = palette === 'violet-mist' ? ['#F4F0F8', '#1B1A2E'] :
-      palette === 'snowfall' ? ['#F1F3F7', '#20263B'] : ['#F8F5F9', '#17171B'];
+    var colors = palette === 'sand' ? ['#F0EBE3', '#1C1814'] :
+      palette === 'mist' ? ['#E6EEF2', '#12171B'] :
+      palette === 'snowfall' ? ['#F1F3F7', '#20263B'] :
+      palette === 'violet-mist' ? ['#F4F0F8', '#1B1A2E'] : ['#F3F1FB', '#14121D'];
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.content = colors[theme === 'dark' ? 1 : 0];
     var button = document.getElementById('theme-toggle');
@@ -2394,16 +2491,7 @@ body.dreamcloud {
 .dreamcloud .self-fab:hover { box-shadow: 0 5px 20px rgba(142,87,106,.16); }
 .dreamcloud #ob-chick { filter: drop-shadow(0 3px 6px rgba(142,87,106,.12)); }
 .dreamcloud .self-fab, .dreamcloud #ob-chick { bottom: 22px; }
-.dreamcloud #auth-overlay { padding: 32px 18px; overflow-y: auto; background: var(--bg-gradient) !important; }
-.dreamcloud #auth-overlay > div { position: relative; width: 100% !important; max-width: 440px !important; padding: 42px 38px 36px !important; background: var(--theme-overlay) !important; border: 1px solid rgba(255,255,255,.95) !important; border-radius: 36px 36px 36px 12px !important; box-shadow: 0 24px 90px rgba(142,87,106,.1) !important; }
-.dream-auth-cloud { display: block; width: 90px; height: 70px; margin: 0 auto 14px; }
-.dreamcloud #auth-overlay h2 { font: 500 34px 'Cormorant Garamond',serif !important; letter-spacing: -.4px; color: var(--text) !important; margin-bottom: 8px !important; }
-.dream-auth-note { color: var(--text-dim); font-size: 12px; margin: 0 0 24px; }
 .dreamcloud #auth-subtitle { font-size: 12px !important; margin-bottom: 20px !important; }
-.dreamcloud #auth-overlay input { min-height: 48px; border-radius: 14px !important; font-size: 13px !important; }
-.dreamcloud #auth-overlay button { min-height: 46px; border-radius: 15px !important; font-size: 13px !important; }
-.dreamcloud #auth-overlay details { padding: 12px; background: var(--surface-solid); border-radius: 12px; }
-.dreamcloud #auth-overlay a { line-height: 2; }
 @media (min-width: 1600px) { .dreamcloud .header { padding-left: calc((100vw - 1400px)/2); padding-right: calc((100vw - 1400px)/2); } }
 @media (max-width: 1380px) {
   .dreamcloud .tabs, .dreamcloud #embed-warn-banner { margin-left: 28px; margin-right: 28px; }
@@ -2453,10 +2541,7 @@ body.dreamcloud {
   .dreamcloud .bucket-row .bucket-row-bottom { padding-left: 0; }
   .dreamcloud .bucket-row-bottom .preview { font-size: 12px; }
   .dreamcloud .config-section { padding: 19px 16px; }
-  .dreamcloud #auth-overlay > div { padding: 30px 24px !important; border-radius: 28px 28px 28px 10px !important; }
-  .dreamcloud #auth-overlay h2 { font-size: 31px !important; }
-  .dreamcloud .dream-auth-cloud { height: 60px; margin-bottom: 10px; }
-  .dreamcloud .self-fab { left: 16px; width: 46px; height: 46px; bottom: 16px; }
+.dreamcloud .self-fab { left: 16px; width: 46px; height: 46px; bottom: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .dreamcloud *, .dreamcloud *::before, .dreamcloud *::after { animation: none !important; scroll-behavior: auto !important; transition: none !important; }
@@ -2499,8 +2584,6 @@ html[data-theme="dark"] body.dreamcloud {
 .dreamcloud #memory-delete-error { color: var(--negative); margin-top: 12px; }
 .dreamcloud #memory-delete-dialog button:disabled { opacity: .6; cursor: wait; }
 html[data-theme="dark"] .dreamcloud .ob-logo [fill="#FFFDFC"],
-html[data-theme="dark"] .dreamcloud .dream-auth-cloud [fill="#fffdfa"] { fill: #45313F; }
-html[data-theme="dark"] .dreamcloud #auth-overlay > div { border-color: var(--border) !important; }
 html[data-theme="dark"] .dreamcloud .dream-primary { text-shadow: none; }
 html[data-theme="dark"] .dreamcloud .bucket-row:hover { background: #2D2630 !important; }
 html[data-theme="dark"] .dreamcloud .header button:hover { background: var(--theme-tint) !important; }
@@ -2515,7 +2598,6 @@ html[data-theme="dark"] .dreamcloud .header button:hover { background: var(--the
 
 /* User-supplied artwork: image-based companion, no pixel rendering. */
 .dreamcloud .header .ob-logo.user-brand-icon { width: 52px; height: 52px; border-radius: 0; background: transparent; object-fit: contain; }
-.dreamcloud .dream-auth-cloud.user-brand-icon { width: 114px; height: 114px; border-radius: 0; background: transparent; object-fit: contain; }
 .dreamcloud #ob-chick {
   width: 112px; height: 150px; right: 22px; bottom: 20px; padding: 0;
   cursor: grab; touch-action: none; image-rendering: auto;
@@ -2545,8 +2627,7 @@ html[data-theme="dark"] .dreamcloud .header button:hover { background: var(--the
 .dreamcloud #ob-chick.sleeping::after { right: 4px; top: 28px; font-family: 'Noto Sans SC',sans-serif; color: var(--text-dim); }
 @media(max-width:700px){
   .dreamcloud .header .ob-logo.user-brand-icon {width:38px;height:38px;border-radius:0;}
-  .dreamcloud .dream-auth-cloud.user-brand-icon {width:100px;height:100px;border-radius:0;}
-  .dreamcloud #ob-chick {width:86px;height:116px;right:14px;bottom:15px;}
+.dreamcloud #ob-chick {width:86px;height:116px;right:14px;bottom:15px;}
   .dreamcloud #ob-chick .companion-sprite {width:86px;height:86px;}
   .dreamcloud #ob-chick .companion-lifted {height:116px;}
   .dreamcloud #ob-chick .chick-tip {font-size:10px;max-width:180px;}
@@ -2658,25 +2739,9 @@ html[data-palette="snowfall"][data-theme="dark"] .dreamcloud .bucket-row:hover {
 html[data-palette="snowfall"] .dreamcloud .bucket-row .icon { border-radius: 8px; background: transparent; }
 html[data-palette="snowfall"] .dreamcloud .domain-pill { border-radius: 7px; padding: 2px 7px; }
 html[data-palette="snowfall"] .dreamcloud .config-section { border-radius: 14px; }
-html[data-palette="snowfall"] .dreamcloud #auth-overlay > div {
-  z-index: 1; border: 1px solid var(--border) !important;
-  border-radius: 24px !important; box-shadow: 0 24px 80px var(--shadow-dark) !important;
-}
-html[data-palette="snowfall"] .dreamcloud #auth-overlay::before {
-  content: ''; pointer-events: none; position: fixed; inset: 0; opacity: .35;
-  background:
-    radial-gradient(circle at 12% 18%,var(--scene-star) 0 1px,transparent 1.6px),
-    radial-gradient(circle at 24% 64%,var(--scene-star) 0 1px,transparent 1.6px),
-    radial-gradient(circle at 78% 22%,var(--scene-star) 0 1.3px,transparent 2px),
-    radial-gradient(circle at 87% 48%,var(--scene-star) 0 1px,transparent 1.6px),
-    radial-gradient(circle at 67% 76%,var(--scene-star) 0 1px,transparent 1.6px);
-}
-html[data-palette="snowfall"] .dreamcloud #auth-overlay input, html[data-palette="snowfall"] .dreamcloud #auth-overlay button { border-radius: 11px !important; }
-html[data-palette="snowfall"] .dreamcloud #auth-overlay h2 { color: var(--text) !important; }
 @media (max-width:1100px) {
 }
 @media (max-width:700px) {
-  html[data-palette="snowfall"] .dreamcloud #auth-overlay > div { border-radius: 22px !important; }
 }
 
 /* Native radio controls keep the theme picker usable with a keyboard. */
@@ -2825,9 +2890,15 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
 <link rel="stylesheet" href="/ob/static/adapter.css">
 <script src="/ob/static/adapter.js"></script>
 <script src="/ob/static/domain-ui.js"></script>
-<script src="/ob/static/explorer.js"></script>
+<link rel="stylesheet" href="/ob/static/login-cover.css">
+<script src="/ob/static/login-cover.js" defer></script>
+<link rel="stylesheet" href="/ob/static/dashboard-journal.css">
+<script src="/ob/static/dashboard-chime.js" defer></script>
+<script src="/ob/static/dashboard-galaxy.js" defer></script>
+<script src="/ob/static/dashboard-journal.js" defer></script>
+
 </head>
-<body class="dreamcloud">
+<body class="dreamcloud ob-journal">
 
 <!-- SVG icon sprite — all icons referenced via <use href="#i-*"> -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
@@ -2888,7 +2959,7 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
 <nav class="tabs" aria-label="页面导航">
   <button type="button" class="tab active" data-tab="list"><span>记忆桶</span><span class="tab-en">Buckets</span></button>
   <button type="button" class="tab" data-tab="breath"><span>Breath 模拟</span><span class="tab-en">Breath Trace</span></button>
-  <button type="button" class="tab" data-tab="network"><span>记忆网络</span><span class="tab-en">Network</span></button>
+  <button type="button" class="tab" data-tab="network"><span>记忆星河</span><span class="tab-en">Galaxy</span></button>
   <button type="button" class="tab" data-tab="plan"><span>计划</span><span class="tab-en">Plans</span></button>
   <button type="button" class="tab" data-tab="letters"><span>信</span><span class="tab-en">Letters</span></button>
   <button type="button" class="tab" data-tab="anchors"><span>锚点</span><span class="tab-en">Anchors</span></button>
@@ -3287,7 +3358,7 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
 
     <section class="config-section appearance-section" id="sec-appearance" data-sgroup="basics" aria-labelledby="appearance-title">
       <h3 id="appearance-title">面板外观 <span class="sec-en">Appearance</span></h3>
-      <p class="appearance-description">选一个喜欢的色系，随时切换。选择会保存在当前浏览器，下次打开继续使用。</p>
+      <p class="appearance-description">选一个喜欢的手账色系，贴纸和吊牌会跟着换色。选择会保存在当前浏览器。</p>
       <fieldset class="appearance-fieldset">
         <legend>面板色系</legend>
         <div class="palette-options">
@@ -3295,25 +3366,33 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
             <input type="radio" name="dashboard-palette" value="lilac" onchange="setDashboardPalette(this.value)" checked>
             <span class="palette-option-body">
               <span class="palette-preview palette-preview-lilac" aria-hidden="true"><span></span><span></span></span>
-              <strong>淡紫粉色</strong>
-              <span class="palette-description">浅紫与淡粉，夜晚是温柔玫瑰金。</span>
+              <strong>雾紫信纸</strong>
+              <span class="palette-description">和登录页同一套：雾紫纸张、墨紫字迹；夜里是星空手账。</span>
+            </span>
+          </label>
+          <label class="palette-option">
+            <input type="radio" name="dashboard-palette" value="sand" onchange="setDashboardPalette(this.value)">
+            <span class="palette-option-body">
+              <span class="palette-preview palette-preview-sand" aria-hidden="true"><span></span><span></span></span>
+              <strong>暖沙</strong>
+              <span class="palette-description">奶油、沙色与小麦色，胡桃木做重点色；夜里是暖灯下的旧书页。</span>
+            </span>
+          </label>
+          <label class="palette-option">
+            <input type="radio" name="dashboard-palette" value="mist" onchange="setDashboardPalette(this.value)">
+            <span class="palette-option-body">
+              <span class="palette-preview palette-preview-mist" aria-hidden="true"><span></span><span></span></span>
+              <strong>雾蓝</strong>
+              <span class="palette-description">清晨的海雾和灰蓝信纸；夜里是安静的深海蓝。</span>
             </span>
           </label>
           <label class="palette-option">
             <input type="radio" name="dashboard-palette" value="snowfall" onchange="setDashboardPalette(this.value)">
-            <span class="palette-option-body">
-              <span class="palette-preview palette-preview-snowfall" aria-hidden="true"><span></span><span></span></span>
-              <strong>星雪暮色</strong>
-              <span class="palette-description">雪白与灰蓝，夜晚是靛蓝星光。</span>
-            </span>
+            <span class="palette-option-body"><span class="palette-preview palette-preview-snowfall" aria-hidden="true"><span></span><span></span></span><strong>星雪暮色</strong><span class="palette-description">雪白与灰蓝，夜晚是靛蓝星光。</span></span>
           </label>
           <label class="palette-option">
             <input type="radio" name="dashboard-palette" value="violet-mist" onchange="setDashboardPalette(this.value)">
-            <span class="palette-option-body">
-              <span class="palette-preview palette-preview-violet-mist" aria-hidden="true"><span></span><span></span></span>
-              <strong>紫雾</strong>
-              <span class="palette-description">浅色 Lilac Mist，深色 Ultra Violet。雾紫与藤萝，夜晚是深紫星空。</span>
-            </span>
+            <span class="palette-option-body"><span class="palette-preview palette-preview-violet-mist" aria-hidden="true"><span></span><span></span></span><strong>紫雾</strong><span class="palette-description">雾紫与藤萝，夜晚是深紫星空。</span></span>
           </label>
         </div>
       </fieldset>
@@ -4290,53 +4369,66 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
   </div>
 </dialog>
 
-<div id="auth-overlay" style="position:fixed;inset:0;z-index:9999;background:var(--bg-gradient);background-attachment:fixed;display:flex;align-items:center;justify-content:center;">
-  <div style="background:var(--surface);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:24px;padding:48px 40px;max-width:400px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.12);">
-    <img class="dream-auth-cloud user-brand-icon" src="/ob/static/brand-icon.png" alt="" width="96" height="96"><h2 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--accent-ink,var(--accent));margin-bottom:8px;">Ombre Brain</h2>
-    <p class="dream-auth-note">把每一次在意，轻轻收好。</p>
-    <p style="color:var(--text-dim);font-size:13px;margin-bottom:28px;" id="auth-subtitle">验证身份 / Verifying identity</p>
-
-    <!-- Setup form -->
-    <div id="auth-setup-form" style="display:none;">
-      <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">首次使用，请设置访问密码 / First time here — please set an access password</p>
-      <div id="auth-setup-remote-warning" style="display:none;text-align:left;font-size:12px;line-height:1.7;color:var(--warning,#d29922);background:rgba(210,153,34,0.12);border:1px solid rgba(210,153,34,0.4);border-radius:10px;padding:10px 12px;margin-bottom:14px;">
-        ⚠️ 检测到你不是从本机（localhost/127.0.0.1）访问的——首次设置密码的接口只信任本机连接，这里填了提交大概率会被服务端拒绝。<br>
-        请改为 SSH 登录服务器，在 <code>.env</code> 里设置 <code>OMBRE_DASHBOARD_PASSWORD</code> 后重启服务；或设置 <code>OMBRE_SETUP_TOKEN</code> 后用 <code>curl</code> 带 <code>X-Ombre-Setup-Token</code> 头远程调用一次 <code>/auth/setup</code>。
+<div id="auth-overlay" class="ob-cover" role="dialog" aria-modal="true" aria-labelledby="auth-cover-title" tabindex="-1" style="display:none;">
+  <div class="ob-cover-frame" aria-hidden="true"></div>
+  <header class="ob-cover-edge"><span>Ombre Brain</span><span class="ob-cover-french" lang="fr">Une petite collection de jours</span></header>
+  <section class="ob-cover-page">
+    <div class="ob-cover-collage">
+      <div class="ob-cover-arch" aria-hidden="true"></div>
+      <figure class="ob-cover-photo"><img src="/ob/static/login-sky.webp" alt="云中通向天空的白色阶梯" width="184" height="244"><figcaption lang="fr">Quelque part, dans le ciel.</figcaption></figure>
+      <div class="ob-cover-photo-stack" aria-hidden="true">
+        <span class="ob-polaroid-back ob-polaroid-back-one"></span><span class="ob-polaroid-back ob-polaroid-back-two"></span>
+        <figure class="ob-polaroid-front"><img src="/ob/static/login-flower-photo.jpg" alt="" width="154" height="204"><figcaption>Fleur d’étoile</figcaption></figure>
+        <img class="ob-photo-clip" src="/ob/static/login-plastic-clip.webp" alt="" width="46" height="42">
+        <div class="ob-flower-pendant" id="ob-starflower-pendant"><svg class="ob-pendant-string" viewBox="0 0 24 110"><path d="M1 1C1 36 12 63 10 104"/><circle cx="10" cy="104" r="2"/></svg><img src="/ob/static/login-crystal-pendant.webp" alt="" width="46" height="64"></div>
       </div>
-      <input type="password" id="auth-setup-pwd" placeholder="设置密码（至少6位）/ Password (6+ chars)" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:10px;" />
-      <input type="password" id="auth-setup-pwd2" placeholder="确认密码 / Confirm password" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:12px;" onkeydown="if(event.key==='Enter')doSetup()" />
-      <details style="margin-bottom:16px;text-align:left;">
-        <summary style="font-size:12px;color:var(--text-dim);cursor:pointer;user-select:none;">设置急救安全问题（可选，忘记密码时用）/ Set a security question (optional, for password recovery)</summary>
-        <div style="margin-top:10px;">
-          <input type="text" id="auth-setup-q" placeholder="你的安全问题，例：我第一只猫叫什么 / Your question, e.g. my first cat's name" style="display:block;width:100%;padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface-solid);color:var(--text);font-size:13px;margin-bottom:8px;box-sizing:border-box;" />
-          <input type="text" id="auth-setup-a" placeholder="答案（不区分大小写）/ Answer (case-insensitive)" style="display:block;width:100%;padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:var(--surface-solid);color:var(--text);font-size:13px;box-sizing:border-box;" />
+      <img class="ob-cover-sticker ob-cover-sticker-winter" src="/ob/static/login-sticker-winter.webp" alt="" aria-hidden="true" width="158" height="158">
+      <img class="ob-cover-sticker ob-cover-sticker-sleep" src="/ob/static/login-sticker-sleep.webp" alt="" aria-hidden="true" width="84" height="164">
+      <img class="ob-cover-sticker ob-cover-sticker-birdcage" src="/ob/static/sticker-birdcage.webp" alt="" aria-hidden="true" width="100" height="122">
+      <div class="ob-cover-paper"><p class="ob-cover-small" lang="en"><span>The cosmos disappears</span><span>while U sleep</span></p><h2 id="auth-cover-title">Xavier</h2></div>
+      <div class="ob-cover-stamp" aria-hidden="true"><span>OMBRE BRAIN</span><svg viewBox="0 0 48 48"><path d="M9 41C12 28 18 13 38 5c4 14-2 29-22 30M8 43 34 11M18 30l-1-9m7 3 9-1m-5-5 1-8"/></svg><span>SOUVENIRS</span></div>
+      <div class="ob-cover-ticket" aria-hidden="true"><span>一张通往记忆的车票</span><time>16 oct</time><span class="ob-cover-barcode"></span></div>
+    </div>
+    <div class="ob-cover-controls">
+      <p id="auth-subtitle" aria-live="polite">正在轻轻叩门…</p>
+
+      <form id="auth-setup-form" data-auth-action="doSetup" style="display:none;">
+        <p class="ob-cover-form-note">初次见面，为这本记忆册设置一个访问密码。</p>
+        <div id="auth-setup-remote-warning" style="display:none;">
+          首次设密需要从本机访问。服务器用户可在 <code>.env</code> 设置 <code>OMBRE_DASHBOARD_PASSWORD</code> 后重启；或使用 <code>OMBRE_SETUP_TOKEN</code> 与 <code>X-Ombre-Setup-Token</code> 调用 <code>/auth/setup</code>。
         </div>
-      </details>
-      <button onclick="doSetup()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;">设置密码并进入 / Set password &amp; enter</button>
-    </div>
+        <label class="ob-cover-label" for="auth-setup-pwd">设置访问密码</label>
+        <input type="password" id="auth-setup-pwd" placeholder="至少 6 位" minlength="6" maxlength="1024" autocomplete="new-password" required>
+        <label class="ob-cover-label" for="auth-setup-pwd2">再次确认密码</label>
+        <input type="password" id="auth-setup-pwd2" placeholder="再输入一次访问密码" minlength="6" maxlength="1024" autocomplete="new-password" required>
+        <details><summary>设置找回密码的安全问题（可选）</summary><div>
+          <label class="ob-cover-label" for="auth-setup-q">安全问题</label><input type="text" id="auth-setup-q" placeholder="例如：第一只猫的名字" maxlength="500" autocomplete="off">
+          <label class="ob-cover-label" for="auth-setup-a">答案</label><input type="text" id="auth-setup-a" placeholder="不区分大小写" maxlength="1024" autocomplete="off">
+        </div></details>
+        <button type="submit" class="ob-cover-submit"><span data-submit-label>设置密码并进入</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 24h32M27 11l13 13-13 13"/></svg></button>
+      </form>
 
-    <!-- Login form -->
-    <div id="auth-login-form" style="display:none;">
-      <input type="password" id="auth-login-pwd" placeholder="输入访问密码 / Enter access password" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:12px;" onkeydown="if(event.key==='Enter')doLogin()" />
-      <button onclick="doLogin()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;">登录 / Log in</button>
-      <div style="margin-top:12px;text-align:center;">
-        <a href="#" onclick="showRecovery();return false;" style="font-size:12px;color:var(--text-dim);text-decoration:none;border-bottom:1px dashed var(--border);">忘记密码 / Forgot password →</a>
-      </div>
-    </div>
+      <form id="auth-login-form" data-auth-action="doLogin" style="display:none;">
+        <label class="ob-cover-label" for="auth-login-pwd">访问密码</label>
+        <div class="ob-password-field"><input type="password" id="auth-login-pwd" placeholder="输入密码，翻开记忆册" maxlength="1024" autocomplete="current-password" required><button type="button" class="ob-password-toggle" data-password-toggle="auth-login-pwd" aria-label="显示密码" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"/><circle cx="12" cy="12" r="2.5"/></svg></button></div>
+        <button type="submit" class="ob-cover-submit"><span data-submit-label>打开记忆册</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 24h32M27 11l13 13-13 13"/></svg></button>
+        <button type="button" class="ob-cover-link" data-cover-action="showRecovery">忘记密码</button>
+      </form>
 
-    <!-- Recovery form -->
-    <div id="auth-recovery-form" style="display:none;">
-      <p style="font-size:13px;color:var(--text-dim);margin-bottom:4px;">急救模式 / Recovery mode</p>
-      <p id="auth-recovery-question" style="font-size:14px;color:var(--text);font-weight:500;margin-bottom:16px;"></p>
-      <input type="text" id="auth-recovery-answer" placeholder="你的答案 / Your answer" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:10px;" />
-      <input type="password" id="auth-recovery-newpwd" placeholder="新密码（至少6位）/ New password (6+ chars)" style="display:block;width:100%;padding:10px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface-solid);color:var(--text);font-size:14px;margin-bottom:16px;" onkeydown="if(event.key==='Enter')doRecover()" />
-      <button onclick="doRecover()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer;margin-bottom:8px;">重置密码并进入 / Reset password &amp; enter</button>
-      <div style="text-align:center;"><a href="#" onclick="showLogin();return false;" style="font-size:12px;color:var(--text-dim);text-decoration:none;">← 返回登录 / Back to login</a></div>
+      <form id="auth-recovery-form" data-auth-action="doRecover" style="display:none;">
+        <p class="ob-cover-form-note">回答你留下的问题，重新打开记忆册。</p>
+        <p id="auth-recovery-question"></p>
+        <label class="ob-cover-label" for="auth-recovery-answer">你的答案</label><input type="text" id="auth-recovery-answer" placeholder="输入安全问题的答案" maxlength="1024" autocomplete="off" required>
+        <label class="ob-cover-label" for="auth-recovery-newpwd">新的访问密码</label><input type="password" id="auth-recovery-newpwd" placeholder="至少 6 位" minlength="6" maxlength="1024" autocomplete="new-password" required>
+        <button type="submit" class="ob-cover-submit"><span data-submit-label>重置密码并进入</span><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 24h32M27 11l13 13-13 13"/></svg></button>
+        <button type="button" class="ob-cover-link" data-cover-action="showLogin">返回登录</button>
+      </form>
+      <div id="auth-error" role="alert" style="display:none;"></div>
     </div>
-
-    <div id="auth-error" style="color:var(--negative);font-size:13px;margin-top:12px;display:none;"></div>
-  </div>
+  </section>
+  <footer class="ob-cover-edge ob-cover-footer"><span class="ob-cover-french" lang="en">The night the meteor fell</span><span>Ombre Brain</span></footer>
 </div>
+
 
 <script>
 // SVG icon strings — drop-in replacements for emoji in innerHTML
@@ -4420,9 +4512,16 @@ function stopAuthenticatedDashboardPolling() {
   _errorAlertTimer = null;
 }
 
+// auth-pending 时只显示登录封面（或纸色底），面板保持隐藏；确认会话有效后才移除。
+function setDashboardAuthPending(pending) {
+  var root = typeof document !== 'undefined' && document.documentElement;
+  if (root && root.classList) root.classList.toggle('auth-pending', !!pending);
+}
+
 function invalidateAuthenticatedDashboardSession() {
   _dashboardAuthGeneration += 1;
   stopAuthenticatedDashboardPolling();
+  setDashboardAuthPending(true);
 }
 
 function initializeAuthenticatedDashboard(generation) {
@@ -4494,8 +4593,17 @@ async function finishDashboardAuthentication() {
     return false;
   }
   document.getElementById('auth-error').style.display = 'none';
+  const dashboardReady = beginAuthenticatedDashboardSession();
+  // 面板在封面之下开始渲染，水波揭开时已就位。
+  setDashboardAuthPending(false);
+  const generation = _dashboardAuthGeneration;
+  if (typeof window !== 'undefined' && typeof window.ombreRevealDashboard === 'function') {
+    return await window.ombreRevealDashboard(dashboardReady, function () {
+      return generation === _dashboardAuthGeneration;
+    });
+  }
   document.getElementById('auth-overlay').style.display = 'none';
-  await beginAuthenticatedDashboardSession();
+  await dashboardReady;
   return true;
 }
 
@@ -4511,7 +4619,18 @@ function _isLikelyLoopbackHost() {
 async function checkAuth() {
   var requestedGeneration = _dashboardAuthGeneration;
   try {
-    const resp = await fetch('/auth/status', { cache: 'no-store' });
+    // 隧道或网络卡住时不能一直停在空白底色上：8 秒后按连接失败处理。
+    var controller = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = controller ? setTimeout(function() { controller.abort(); }, 8000) : null;
+    var resp;
+    try {
+      resp = await fetch('/auth/status', controller
+        ? { cache: 'no-store', signal: controller.signal }
+        : { cache: 'no-store' });
+    } finally {
+      if (timer !== null) clearTimeout(timer);
+    }
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const data = await resp.json();
     if (requestedGeneration !== _dashboardAuthGeneration) return false;
     if (data.setup_needed) {
@@ -4524,8 +4643,9 @@ async function checkAuth() {
       var remoteWarn = document.getElementById('auth-setup-remote-warning');
       if (remoteWarn) remoteWarn.style.display = _isLikelyLoopbackHost() ? 'none' : 'block';
       return false;
-    } else if (data.authenticated) {
+    } else if (data.authenticated === true) {
       document.getElementById('auth-overlay').style.display = 'none';
+      setDashboardAuthPending(false);
       return true;
     } else {
       invalidateAuthenticatedDashboardSession();
@@ -4536,8 +4656,19 @@ async function checkAuth() {
     }
   } catch {
     if (requestedGeneration !== _dashboardAuthGeneration) return false;
-    document.getElementById('auth-overlay').style.display = 'none';
-    return true;
+    // 连不上时不能当作已登录直接露出面板；留在封面，登录按钮即可重试。
+    invalidateAuthenticatedDashboardSession();
+    document.getElementById('auth-subtitle').textContent = '请输入访问密码 / Enter access password';
+    document.getElementById('auth-login-form').style.display = 'block';
+    document.getElementById('auth-overlay').style.display = 'flex';
+    showAuthError('暂时无法确认登录状态，请检查网络后重试。');
+    // 网络恢复后自动再确认一次；会话仍有效就直接进入，不必重输密码。
+    var retryGeneration = _dashboardAuthGeneration;
+    setTimeout(function() {
+      if (retryGeneration !== _dashboardAuthGeneration) return;
+      checkAuth().then(function(authed) { if (authed) return beginAuthenticatedDashboardSession(); });
+    }, 5000);
+    return false;
   }
 }
 
@@ -4546,6 +4677,24 @@ function showAuthError(msg) {
   el.textContent = msg;
   el.style.display = 'block';
 }
+
+// 手机返回、切回后台很久的页面：先盖住旧画面，再确认会话，避免先露出面板再跳回登录页。
+(function() {
+  if (typeof window === 'undefined' || typeof window.addEventListener !== 'function') return;
+  var hiddenAt = 0;
+  function recheck() {
+    setDashboardAuthPending(true);
+    checkAuth();
+  }
+  window.addEventListener('pagehide', function() { setDashboardAuthPending(true); });
+  window.addEventListener('pageshow', function(event) { if (event.persisted) recheck(); });
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt && Date.now() - hiddenAt > 5 * 60 * 1000
+        && document.getElementById('auth-overlay').style.display === 'none') recheck();
+    hiddenAt = 0;
+  });
+})();
 
 async function readAuthFailure(resp, fallback) {
   try {
@@ -4641,6 +4790,7 @@ async function doLogin() {
 async function doLogout() {
   await fetch('/auth/logout', { method: 'POST' });
   invalidateAuthenticatedDashboardSession();
+  document.getElementById('auth-recovery-form').style.display = 'none';
   document.getElementById('auth-setup-form').style.display = 'none';
   document.getElementById('auth-login-form').style.display = 'none';
   document.getElementById('auth-login-form').style.display = 'block';
@@ -5950,8 +6100,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function _currentBucketPageItems() {
-  var isDigestedFilter = (currentFilter === 'digested');
-  var visible = isDigestedFilter ? (_curBuckets || []) : (_curBuckets || []).filter(function(b) { return !b.dont_surface; });
+  var visible = currentFilter === 'digested' ? (_curBuckets || []) : (_curBuckets || []).filter(function(b) { return !b.dont_surface; });
   if (!visible.length) return [];
   var totalPages = Math.ceil(visible.length / BUCKETS_PER_PAGE);
   var page = _normalizeBucketPage(bucketPage, totalPages, 1);
@@ -6235,7 +6384,7 @@ function updateStats() {
   const resolved = allBuckets.filter(b => b.resolved).length;
   const digested = allBuckets.filter(b => b.digested).length;
   document.getElementById('stats').textContent =
-    total + ' 桶 · ' + pinned + ' 钉选 · ' + feels + ' feel · ' + resolved + ' 已解决 · ' + digested + ' 已消化';
+    total + ' 条记忆 · ' + pinned + ' 钉选 · ' + feels + ' feel · ' + resolved + ' 已解决 · ' + digested + ' 已消化';
   updateChick(total);   // 小黄鸡蛋随记忆总数孵化长大
 }
 
@@ -6330,9 +6479,7 @@ function _normalizeBucketPage(value, totalPages, fallbackPage) {
 }
 
 function _visibleBucketTotalPages() {
-  var visibleCount = (_curBuckets || []).filter(function(b) { return !b.dont_surface; }).length;
-  var isDigestedFilter = (currentFilter === 'digested');
-  var visibleCount = isDigestedFilter ? (_curBuckets || []).length : (_curBuckets || []).filter(function(b) { return !b.dont_surface; }).length;
+  var visibleCount = currentFilter === 'digested' ? (_curBuckets || []).length : (_curBuckets || []).filter(function(b) { return !b.dont_surface; }).length;
   return Math.max(1, Math.ceil(visibleCount / BUCKETS_PER_PAGE));
 }
 
@@ -6368,10 +6515,10 @@ function _bucketPagerHtml(total, totalPages) {
 
 function _paintBuckets() {
   var list = document.getElementById('bucket-list');
-  // 当用户主动筛选「已消化」时，允许在主列表正常查看；否则将已消化/遗忘的桶分流
-  var isDigestedFilter = (currentFilter === 'digested');
-  var forgotten = isDigestedFilter ? [] : _curBuckets.filter(function(b) { return b.dont_surface; });
-  var visible = isDigestedFilter ? _curBuckets : _curBuckets.filter(function(b) { return !b.dont_surface; });
+  // iter 1.9 C: 把已主动遗忘的桶单独折叠到下方区域，主列表只显示活跃的
+  // Split forgotten ones into the dedicated <details>; the main list stays clean.
+  var forgotten = currentFilter === 'digested' ? [] : _curBuckets.filter(function(b) { return b.dont_surface; });
+  var visible = currentFilter === 'digested' ? _curBuckets : _curBuckets.filter(function(b) { return !b.dont_surface; });
   renderForgottenGroup(forgotten);
   if (!visible.length) {
     bucketPage = 1;
@@ -6386,15 +6533,15 @@ function _paintBuckets() {
   list.innerHTML = pageItems.map(function(b) {
     // iter 1.8: dont_surface = 主动遗忘（仍在磁盘） / first_of_kind = 首次出现的标签组合
     // 图标：feel→计算表情、letter→信封、pinned→可发光的钉、其余沿用原逻辑
-    var iconCls = 'icon', iconHtml, iconLabel;
-    if (b.letter_locked)     { iconHtml = '<i data-lucide="lock-keyhole"></i>'; iconLabel = '锁定信件'; }
-    else if (b.dont_surface) { iconHtml = '<i data-lucide="eye-off"></i>'; iconLabel = '主动遗忘'; }
-    else if (b.pinned)       { iconHtml = '<i data-lucide="pin"></i>'; iconCls = 'icon pin-ic'; iconLabel = '钉选记忆'; }
-    else if (b.type === 'feel') { iconHtml = feelFace(b.valence, b.arousal); iconLabel = 'Feel 感受 · 表情随情绪变化'; }
-    else if (b.type === 'letter') { iconHtml = '<i data-lucide="mail"></i>'; iconLabel = '信件'; }
-    else if (b.digested)     { iconHtml = '<i data-lucide="leaf"></i>'; iconLabel = '已消化 / 隐藏'; }
-    else if (b.resolved)     { iconHtml = '<i data-lucide="moon"></i>'; iconLabel = '已解决 / 沉底'; }
-    else                    { iconHtml = '<i data-lucide="message-circle"></i>'; iconLabel = '普通记忆'; }
+    var iconCls = 'icon', iconHtml;
+    if (b.letter_locked)       iconHtml = '<i data-lucide="lock-keyhole"></i>';
+    else if (b.dont_surface)   iconHtml = '<i data-lucide="eye-off"></i>';
+    else if (b.pinned)       { iconHtml = '<i data-lucide="pin"></i>'; iconCls = 'icon pin-ic'; }
+    else if (b.type === 'feel')   iconHtml = feelFace(b.valence, b.arousal);
+    else if (b.type === 'letter') iconHtml = '<i data-lucide="mail"></i>';
+    else if (b.digested)     iconHtml = '<i data-lucide="leaf"></i>';
+    else if (b.resolved)     iconHtml = '<i data-lucide="moon"></i>';
+    else                     iconHtml = '<i data-lucide="message-circle"></i>';
     var firstBadge = b.first_of_kind ? ' <i data-lucide="sparkles" title="首次出现" style="width:12px;height:12px;color:var(--accent-ink,var(--accent));vertical-align:-1px;"></i>' : '';
     var importedBadge = b.imported ? ' <span title="由对话导入" style="font-size:10px;color:var(--accent-ink,var(--accent));border:1px solid var(--accent);border-radius:999px;padding:1px 5px;white-space:nowrap;">被导入</span>' : '';
     // 列表页只画一枚回形针：字节要点开详情才去要。
@@ -6425,26 +6572,10 @@ function _paintBuckets() {
       ? '<span class="domain-pill">' + esc((b.domain || []).join(', ')) + '</span>'
       : '';
     var emotionHtml = '<span class="emotion" style="display:inline-flex;align-items:center;gap:3px;"><span class="v-bar"><span class="v-dot" style="left:' + vPos + '%"></span></span>' + modelV + '</span>';
-    var resolveIcon = b.resolved ? 'rotate-ccw' : 'moon';
-    var resolveTitle = b.resolved ? '激活（取消沉底）' : '沉底（标记已解决）';
-    var resolveLabel = b.resolved ? '激活' : '沉底';
-    var pinIcon = b.pinned ? 'pin-off' : 'pin';
-    var pinTitle = b.pinned ? '取消钉选' : '钉选（永久置顶）';
-    var pinLabel = b.pinned ? '解钉' : '钉选';
-    var forgetIcon = 'leaf';
-    var forgetTitle = b.dont_surface ? '取消隐藏（重新允许浮现）' : '隐藏（仅搜索时唤醒）';
-    var forgetLabel = b.dont_surface ? '显示' : '隐藏';
-    var actionsHtml = '<div class="bucket-card-actions">' +
-      '<button type="button" class="bucket-quick-btn' + (b.dont_surface ? ' active' : '') + '" title="' + forgetTitle + '" onclick="quickToggleForget(event,\'' + escAttr(b.id) + '\')"><i data-lucide="' + forgetIcon + '"></i><span>' + forgetLabel + '</span></button>' +
-      '<button type="button" class="bucket-quick-btn' + (b.resolved ? ' active' : '') + '" title="' + resolveTitle + '" onclick="quickToggleResolve(event,\'' + escAttr(b.id) + '\')"><i data-lucide="' + resolveIcon + '"></i><span>' + resolveLabel + '</span></button>' +
-      '<button type="button" class="bucket-quick-btn' + (b.pinned ? ' active' : '') + '" title="' + pinTitle + '" onclick="quickTogglePin(event,\'' + escAttr(b.id) + '\')"><i data-lucide="' + pinIcon + '"></i><span>' + pinLabel + '</span></button>' +
-      '<button type="button" class="bucket-quick-btn" title="编辑记忆" onclick="quickEditBucket(event,\'' + escAttr(b.id) + '\')"><i data-lucide="edit-3"></i><span>编辑</span></button>' +
-      '<button type="button" class="bucket-quick-btn danger" title="删除记忆" onclick="quickDeleteBucket(event,\'' + escAttr(b.id) + '\')"><i data-lucide="trash-2"></i><span>删除</span></button>' +
-    '</div>';
     return '<div class="' + rowCls + '" data-id="' + escAttr(b.id) + '" ' + rowClick + ' style="cursor:pointer;' + inlineStyle + '">' +
       '<div class="bucket-row-top">' +
         '<input class="bucket-select" type="checkbox" data-id="' + escAttr(b.id) + '" onclick="event.stopPropagation()" onchange="toggleBucketSelection(this.dataset.id,this.checked)"' + (selectedBucketIds.has(b.id) ? ' checked' : '') + '>' +
-        '<span class="' + iconCls + '" role="img" aria-label="' + iconLabel + '" title="' + iconLabel + '">' + iconHtml + '</span>' +
+        '<span class="' + iconCls + '">' + iconHtml + '</span>' +
         '<span class="name" title="' + escAttr(b.name) + '">' + esc(b.name) + firstBadge + importedBadge + mediaBadge + '</span>' +
         '<div class="bucket-row-tags">' +
           domainHtml +
@@ -6453,10 +6584,7 @@ function _paintBuckets() {
         '</div>' +
         '<span class="time" title="' + escAttr(timeTitle) + '">' + esc(timeLabel) + '</span>' +
       '</div>' +
-      '<div class="bucket-row-bottom">' +
-        '<span class="preview">' + esc(b.content_preview) + '</span>' +
-        actionsHtml +
-      '</div>' +
+      '<div class="bucket-row-bottom"><span class="preview">' + esc(b.content_preview) + '</span></div>' +
     '</div>';
   }).join('') + _bucketPagerHtml(visible.length, totalPages);
   if (window.lucide) lucide.createIcons();
@@ -6797,13 +6925,13 @@ async function bucketAnchor(id) {
 // iter 1.8: 主动遗忘切换 / voluntary forget toggle
 //   POST /api/bucket/{id}/forget 反转 dont_surface。桁仍在磁盘上，
 //   只不再在无参 breath() 中被主动推出。搜索仍能找到。
-async function bucketForget(id) {
+async function bucketForget(id, options) {
   try {
     var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/forget', { method: 'POST' });
     if (!res.ok) throw new Error(await res.text());
     if (window.ObPet) ObPet.react('forget');
-    await showDetail(id);
-    loadBuckets();
+    if (!options || !options.inline) await showDetail(id);
+    await loadBuckets();
   } catch (e) { alert('遗忘切换失败 / Forget toggle failed: ' + e.message); }
 }
 
@@ -6820,7 +6948,7 @@ function renderForgottenGroup(forgotten) {
   box.style.display = '';
   countEl.textContent = forgotten.length;
   listEl.innerHTML = forgotten.map(function(b) {
-    return '<div class="bucket-row" style="opacity:0.6;">' +
+    return '<div class="bucket-row" data-id="' + escAttr(b.id) + '" style="opacity:0.6;">' +
       '<span class="icon"><i data-lucide="eye-off"></i></span>' +
       '<span class="name" data-bucket-id="' + escAttr(b.id) + '" onclick="showDetail(this.dataset.bucketId)" style="cursor:pointer;">' + esc(b.name) + '</span>' +
       '<span class="domain">' + esc((b.domain || []).join(', ')) + '</span>' +
@@ -6858,66 +6986,14 @@ async function bucketsForgetAllow() {
   } catch (e) { alert('批量恢复失败 / Bulk restore failed: ' + e.message); }
 }
 
-async function quickToggleForget(e, id) {
-  if (e) e.stopPropagation();
-  try {
-    var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/forget', { method: 'POST' });
-    if (!res.ok) throw new Error(await res.text());
-    if (window.ObPet) ObPet.react('forget');
-    await loadBuckets();
-  } catch (err) { alert('隐藏/消化状态切换失败: ' + err.message); }
-}
-
-async function quickToggleResolve(e, id) {
-  if (e) e.stopPropagation();
-  try {
-    var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/resolve', { method: 'POST' });
-    if (!res.ok) throw new Error(await res.text());
-    await loadBuckets();
-  } catch (err) { alert('沉底状态切换失败: ' + err.message); }
-}
-
-async function quickTogglePin(e, id) {
-  if (e) e.stopPropagation();
-  try {
-    var current = (allBuckets || []).find(function(b) { return b.id === id; });
-    var body = {};
-    if (current && current.pinned) {
-      body.importance = 5;
-    }
-    var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/pin', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) throw new Error(await res.text());
-    await loadBuckets();
-  } catch (err) { alert('钉选切换失败: ' + err.message); }
-}
-
-async function quickDeleteBucket(e, id) {
-  if (e) e.stopPropagation();
-  openPermanentDelete([id]);
-}
-
-async function quickEditBucket(e, id) {
-  if (e) e.stopPropagation();
-  await showDetail(id);
-  var editForm = document.getElementById('bucket-edit-form');
-  if (editForm) {
-    editForm.open = true;
-    editForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-}
-
-async function bucketResolve(id) {
+async function bucketResolve(id, options) {
   try {
     var res = await fetch(BASE + '/api/bucket/' + encodeURIComponent(id) + '/resolve', { method: 'POST' });
     if (!res.ok) throw new Error(await res.text());
     var d = await res.json();
     if (d.message) alert(d.message);
-    await showDetail(id);
-    loadBuckets();
+    if (!options || !options.inline) await showDetail(id);
+    await loadBuckets();
   } catch (e) { alert('resolve 切换失败: ' + e.message); }
 }
 
@@ -7085,8 +7161,10 @@ function initConceptNetwork(canvas, ctx, W, H, data) {
             '<b>' + esc((n.kind === 'tag' ? '#' : '') + (n.label || n.id)) + '</b>' +
             (n.anchor ? ' <span style="color:var(--accent-ink,var(--accent))">' + _SV.anchor + ' anchor</span>' : '') +
             '<br>' + kindTxt + ' · freq ' + Number(n.freq || 1) + ' · 关联 ' + Number(deg) + ' 个';
-          bubble.style.left    = (e.clientX + 16) + 'px';
-          bubble.style.top     = (e.clientY + 16) + 'px';
+          // 主页整体有 zoom 缩放：鼠标坐标是屏幕像素，换算回样式像素
+          var pageZoom = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+          bubble.style.left    = (e.clientX + 16) / pageZoom + 'px';
+          bubble.style.top     = (e.clientY + 16) / pageZoom + 'px';
           bubble.style.opacity = '1';
         }
       } else {
@@ -7655,7 +7733,7 @@ window.ObPet = (function () {
     if (pointNearElement(x,y,'.search-bar',90)) return '你找什么？我帮你找。';
     if (document.getElementById('settings-view') && document.getElementById('settings-view').style.display !== 'none') return '这里是设置，改完记得保存。';
     if (hour < 5 || hour >= 23) return '你怎么还没睡？';
-    return ['这里视野不错。','好吧，就停这里。','我陪你待在这里。'][st.drops % 3];
+    return ['这里视野不错。','好，就停这里。','我陪你待在这里。'][st.drops % 3];
   }
   function clampPetPosition(x, y) {
     var width = host ? host.offsetWidth : 112, height = host ? host.offsetHeight : 150;
@@ -7679,7 +7757,7 @@ window.ObPet = (function () {
     if (host.dataset.dragReady) return;
     host.dataset.dragReady = '1';
     var drag = null;
-    var grabs = ['可恶的人类！','喂，轻一点！','就这样拎着我吗？','拎起来要负责的！','放我下来呀！'];
+    var grabs = ['可恶的人类！','轻一点！','就这样拎着我吗？','喵呜','放我下来呀！'];
     host.addEventListener('pointerdown',function(e) {
       if (e.button != null && e.button !== 0) return;
       var r = host.getBoundingClientRect();
@@ -7876,7 +7954,7 @@ function updateChick(total) { if (window.ObPet) ObPet.setCount(total || 0); }
   function compose(){
     // 偶尔来一句纯废话
     if (Math.random()<0.18) return pick([
-      '我在陪你呀','刚翻到一段我们的记忆','别看了，专心 :)','咕… 我也想被记住','今天也留下一点小开心','今天也要乖乖的'
+      '我在陪你呀','刚翻到一段我们的记忆','别看了，专心 :)','… 我也想被记住','今天也留下一点小开心','今天也要乖乖的','宇宙在你沉睡时消失不见'
     ]);
     var tod = timeOfDay(), mood = recentMood(), parts = [];
     parts.push(pick(tod.hi)+' '+tod.emoji);
@@ -10747,7 +10825,7 @@ async function loadDuplicates() {
 // iter 1.6 §6 — trace 编辑表单（注入到 detail 面板）
 // 在 showDetail 渲染完后调用，给「编辑」按钮挂事件
 // ========================================
-function renderEditForm(bid, meta) {
+function renderEditForm(bid, meta, options) {
   const curContent = esc(meta._content_for_edit || '');
   const fallbackTitle = String(meta.name || '').replace(/^\d{4}-\d{2}-\d{2} \d{2}-\d{2}-\d{2}\s*/, '');
   const editTitle = String(meta.title || fallbackTitle || '');
@@ -10761,7 +10839,7 @@ function renderEditForm(bid, meta) {
   const typeOptions = meta.pinned && typeIsEditable
     ? ['permanent', 'dynamic']
     : (typeIsEditable ? editableTypes : [currentType].concat(editableTypes));
-  return `
+  const markup = `
     <details id="bucket-edit-form" style="margin-top:14px;border:1px solid var(--border);border-radius:2px;padding:12px 14px;background:var(--surface-solid);">
       <summary style="cursor:pointer;font-weight:600;color:var(--accent-ink,var(--accent));display:flex;align-items:center;gap:5px;"><svg class="icon" aria-hidden="true"><use href="#i-edit"></use></svg> 编辑这条记忆</summary>
       <div style="display:grid;grid-template-columns:90px 1fr;gap:10px 12px;align-items:center;margin-top:14px;font-size:13px;">
@@ -10770,7 +10848,7 @@ function renderEditForm(bid, meta) {
         <label>显示名称</label>
         <input id="edit-name" type="text" value="${escAttr(meta.name || '')}" />
         <label>类型</label>
-        <select id="edit-type" style="width:160px;" onchange="syncEditPinConstraints('type')" ${typeIsEditable ? '' : 'disabled title="特殊类型由对应工具维护，编辑其他字段时会保持原类型"'}>
+        <select id="edit-type" style="width:160px;" onchange="syncEditPinConstraints('type',this.closest('details'))" ${typeIsEditable ? '' : 'disabled title="特殊类型由对应工具维护，编辑其他字段时会保持原类型"'}>
           ${typeOptions.map(t =>
             `<option value="${escAttr(t)}" ${currentType === t ? 'selected' : ''}>${esc(t)}</option>`
           ).join('')}
@@ -10781,11 +10859,11 @@ function renderEditForm(bid, meta) {
         <label>标签</label>
         <input id="edit-tags" type="text" value="${escAttr((meta.tags||[]).join(', '))}" placeholder="逗号分隔" />
         <label>重要度</label>
-        <span><input id="edit-importance" type="range" min="1" max="10" value="${safeImportance}" oninput="document.getElementById('edit-imp-val').textContent=this.value;syncEditPinConstraints('importance')" style="vertical-align:middle;" /> <span id="edit-imp-val">${safeImportance}</span>/10</span>
+        <span><input id="edit-importance" type="range" min="1" max="10" value="${safeImportance}" oninput="this.closest('details').querySelector('[data-edit-field=edit-imp-val]').textContent=this.value;syncEditPinConstraints('importance',this.closest('details'))" style="vertical-align:middle;" /> <span id="edit-imp-val">${safeImportance}</span>/10</span>
         <label>已解决</label>
         <span><input id="edit-resolved" type="checkbox" ${meta.resolved ? 'checked' : ''} /> <small style="color:var(--text-dim);">勾上后仅在关键词命中时重现（适合已闭环的 plan / 事件）</small></span>
         <label>钉选</label>
-        <span><input id="edit-pinned" type="checkbox" onchange="syncEditPinConstraints('pinned')" ${meta.pinned ? 'checked' : ''} /> <small id="edit-pin-hint" style="color:var(--text-dim);">钉选会同步为 permanent / importance=10</small></span>
+        <span><input id="edit-pinned" type="checkbox" onchange="syncEditPinConstraints('pinned',this.closest('details'))" ${meta.pinned ? 'checked' : ''} /> <small id="edit-pin-hint" style="color:var(--text-dim);">钉选会同步为 permanent / importance=10</small></span>
         <label>已消化</label>
         <span><input id="edit-digested" type="checkbox" ${meta.digested ? 'checked' : ''} /></span>
         <label>主动遗忘</label>
@@ -10794,7 +10872,7 @@ function renderEditForm(bid, meta) {
         <textarea id="edit-why" placeholder="可选：这条为什么值得保留（仅展示，不计分）" style="min-height:50px;font-family:inherit;line-height:1.7;resize:vertical;">${esc(meta.why_remembered || '')}</textarea>
         ${meta.type === 'plan' ? `<label>承诺重量</label>
         <span>
-          <input id="edit-weight" type="range" min="0" max="100" value="${Math.round((meta.weight||0)*100)}" oninput="window._updateWeightLabel && window._updateWeightLabel(this.value)" list="weight-anchors" style="vertical-align:middle;width:200px;" />
+          <input id="edit-weight" type="range" min="0" max="100" value="${Math.round((meta.weight||0)*100)}" oninput="this.closest('details').querySelector('[data-edit-field=edit-weight-val]').textContent=this.value+'% · '+weightAnchorLabel(Number(this.value)/100)" list="weight-anchors" style="vertical-align:middle;width:200px;" />
           <datalist id="weight-anchors"><option value="25"></option><option value="50"></option><option value="75"></option><option value="100"></option></datalist>
           <span id="edit-weight-val" style="margin-left:8px;">${Math.round((meta.weight||0)*100)}% · ${weightAnchorLabel((meta.weight||0))}</span>
           <small style="color:var(--text-dim);display:block;margin-top:4px;">轻 25% · 中 50% · 重 75% · 必须 100%（0–100%，仅用于排序展示）</small>
@@ -10803,18 +10881,24 @@ function renderEditForm(bid, meta) {
         <textarea id="edit-content" aria-label="正文 / Content" placeholder="留空不改" style="min-height:120px;font-family:inherit;line-height:1.7;resize:vertical;">${curContent}</textarea>
       </div>
       <div style="margin-top:12px;display:flex;gap:10px;align-items:center;">
-        <button class="btn-primary" data-bucket-id="${escAttr(bid)}" onclick="bucketSaveEdit(this.dataset.bucketId)" title="保存修改" style="padding:0 14px;height:36px;display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check"></i> 保存修改</button>
+        <button class="btn-primary" data-bucket-id="${escAttr(bid)}" onclick="bucketSaveEdit(this.dataset.bucketId,this.closest('details'))" title="保存修改" style="padding:0 14px;height:36px;display:inline-flex;align-items:center;gap:5px;"><i data-lucide="check"></i> 保存修改</button>
         <span id="edit-msg" style="font-size:12px;"></span>
       </div>
     </details>`;
+  const prefix = options && options.idPrefix || '';
+  return markup.replace(/\bid="((?:edit-[a-z-]+|bucket-edit-form|weight-anchors))"/g, function (_, id) {
+    return 'id="' + prefix + id + '" data-edit-field="' + id + '"';
+  }).replace('for="edit-content"','for="' + prefix + 'edit-content"')
+    .replace('list="weight-anchors"','list="' + prefix + 'weight-anchors"');
 }
 
-function syncEditPinConstraints(source) {
-  const pinnedEl = document.getElementById('edit-pinned');
-  const typeEl = document.getElementById('edit-type');
-  const importanceEl = document.getElementById('edit-importance');
-  const importanceValueEl = document.getElementById('edit-imp-val');
-  const hintEl = document.getElementById('edit-pin-hint');
+function syncEditPinConstraints(source, editorRoot) {
+  const field = function (id) { return editorRoot ? editorRoot.querySelector('[data-edit-field="' + id + '"]') : document.getElementById(id); };
+  const pinnedEl = field('edit-pinned');
+  const typeEl = field('edit-type');
+  const importanceEl = field('edit-importance');
+  const importanceValueEl = field('edit-imp-val');
+  const hintEl = field('edit-pin-hint');
   // i/self、archived 等受保护类型不通过普通编辑器改变生命周期约束。
   if (!pinnedEl || !typeEl || typeEl.disabled) return;
 
@@ -10840,24 +10924,27 @@ function syncEditPinConstraints(source) {
   }
 }
 
-async function bucketSaveEdit(bid) {
+async function bucketSaveEdit(bid, editorRoot) {
+  if (editorRoot && editorRoot.dataset.saving === '1') return false;
+  const field = function (id) { return editorRoot ? editorRoot.querySelector('[data-edit-field="' + id + '"]') : document.getElementById(id); };
+  const inline = !!(editorRoot && editorRoot.dataset.inlineEditor === 'true');
   // 事件联动之外再做一次保存前校验，避免脚本赋值或浏览器差异留下矛盾字段。
-  syncEditPinConstraints('save');
-  const newContent = document.getElementById('edit-content').value;
+  syncEditPinConstraints('save',editorRoot);
+  const newContent = field('edit-content').value;
   // iter 1.8: 新增 why_remembered / dont_surface / weight，plan 才会有 weight
-  const weightEl = document.getElementById('edit-weight');
-  const typeEl = document.getElementById('edit-type');
-  const titleEl = document.getElementById('edit-title');
+  const weightEl = field('edit-weight');
+  const typeEl = field('edit-type');
+  const titleEl = field('edit-title');
   const body = {
-    name: document.getElementById('edit-name').value,
-    tags: document.getElementById('edit-tags').value,
-    domain: document.getElementById('edit-domain').value,
-    importance: parseInt(document.getElementById('edit-importance').value, 10),
-    resolved: document.getElementById('edit-resolved').checked,
-    pinned: document.getElementById('edit-pinned').checked,
-    digested: document.getElementById('edit-digested').checked,
-    dont_surface: document.getElementById('edit-dont-surface').checked,
-    why_remembered: document.getElementById('edit-why').value,
+    name: field('edit-name').value,
+    tags: field('edit-tags').value,
+    domain: field('edit-domain').value,
+    importance: parseInt(field('edit-importance').value, 10),
+    resolved: field('edit-resolved').checked,
+    pinned: field('edit-pinned').checked,
+    digested: field('edit-digested').checked,
+    dont_surface: field('edit-dont-surface').checked,
+    why_remembered: field('edit-why').value,
   };
   // 历史桶可能没有显式 title；表单展示的是 name fallback。只有用户
   // 真正动过标题输入框才提交，避免保存其他字段时意外固化或因空标题 400。
@@ -10868,12 +10955,16 @@ async function bucketSaveEdit(bid) {
   if (weightEl) body.weight = parseFloat(weightEl.value) / 100;
   // 内容只在非空时带上，避免误清空
   if (newContent && newContent.trim()) body.content = newContent;
-  const msg = document.getElementById('edit-msg');
+  const msg = field('edit-msg');
   const importView = document.getElementById('import-view');
   const refreshImportResults = importView && importView.style.display !== 'none';
   const importList = document.getElementById('import-results-list');
   const importScrollTop = importList ? importList.scrollTop : 0;
   const detailGenerationAtSave = detailLoadGeneration;
+  const controls = editorRoot ? Array.from(editorRoot.querySelectorAll('input,textarea,select,button')).map(function (node) {
+    const saved = {node:node,disabled:node.disabled}; node.disabled = true; return saved;
+  }) : [];
+  if (editorRoot) editorRoot.dataset.saving = '1';
   msg.textContent = '保存中… / Saving…';
   msg.style.color = 'var(--text-dim)';
   try {
@@ -10887,6 +10978,11 @@ async function bucketSaveEdit(bid) {
     msg.style.color = 'var(--accent)';
     // If the user opened/closed another detail while PATCH was in flight, do
     // not pull the panel back to the bucket that just finished saving.
+    if (inline) {
+      editorRoot.dispatchEvent(new CustomEvent('ob-memory-saved',{bubbles:true,detail:{id:bid}}));
+      await loadBuckets();
+      return true;
+    }
     if (detailLoadGeneration === detailGenerationAtSave) {
       await showDetail(bid);
     }
@@ -10897,6 +10993,10 @@ async function bucketSaveEdit(bid) {
   } catch (e) {
     msg.innerHTML = _SV.err + ' ' + esc(e.message);
     msg.style.color = 'var(--negative)';
+    return false;
+  } finally {
+    controls.forEach(function (item) { item.node.disabled = item.disabled; });
+    if (editorRoot) editorRoot.dataset.saving = '0';
   }
 }
 
@@ -11717,11 +11817,5 @@ async function initSelfFab() {
 }
 </script>
 
-<script>
-window.installAstrbotObDashboard();
-if (window.parent !== window && typeof window.parent.mountDashboardFrontendSwitch === 'function') {
-  window.parent.mountDashboardFrontendSwitch();
-}
-</script>
 </body>
 </html>

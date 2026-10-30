@@ -1,0 +1,105 @@
+/* 登录封面独立样式，不继承面板配色，也不覆盖登录后的界面。 */
+@font-face{font-family:OmbreCover;src:url('/ob/static/login-serif.woff2') format('woff2');font-style:normal;font-weight:300 700;font-display:swap}
+@font-face{font-family:OmbreCover;src:url('/ob/static/login-serif-italic.woff2') format('woff2');font-style:italic;font-weight:300 700;font-display:swap}
+#auth-overlay.ob-cover{
+  --cover-ink:#49435f;--cover-muted:#80768f;--cover-line:#c3bad8;--cover-paper:#fffefd;
+  --cover-texture:url('/ob/static/login-paper-texture.svg');
+  --accent:#9a89b5;--accent-ink:#49435f;--text-dim:#80768f;--text-light:#a097af;--theme-input:#fffefdde;--border:#cec5dd;
+  position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;
+  align-items:stretch;justify-content:flex-start;overflow-y:auto;overflow-x:clip;
+  padding:0;color:var(--cover-ink);color-scheme:light;outline:none;
+  font-family:'Songti SC','STSong','SimSun',serif;
+  background-image:var(--cover-texture),linear-gradient(180deg,#eae9f9 0%,#f3f1fb 46%,#fffefd 100%);
+  background-size:256px 256px,100% 100%;background-repeat:repeat,no-repeat;background-blend-mode:multiply,normal;
+  isolation:isolate;
+}
+.ob-cover *{box-sizing:border-box}
+.ob-cover-frame{position:fixed;inset:16px;z-index:0;pointer-events:none;border:64px solid transparent;border-image-source:url('/ob/static/login-rose-frame.webp');border-image-slice:21% 14%;border-image-repeat:round;opacity:.72}
+.ob-cover button,.ob-cover input{font:inherit}
+.ob-cover button{color:inherit;cursor:pointer;touch-action:manipulation}
+.ob-cover button:disabled{cursor:wait;opacity:.65}
+.ob-cover button:focus-visible,.ob-cover a:focus-visible,.ob-cover summary:focus-visible{outline:2px solid #9a89b5;outline-offset:5px}
+.ob-cover .ob-cover-edge{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:94px 7% 20px;font-size:10px;letter-spacing:1.5px;color:var(--cover-muted);flex-shrink:0}
+.ob-cover-edge .ob-cover-french{font:italic 17px OmbreCover,'Times New Roman',serif;letter-spacing:0}
+.ob-cover .ob-cover-page{position:relative;z-index:1;flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:620px;padding:10px 20px 20px}
+.ob-cover-collage{width:700px;height:370px;position:relative;flex-shrink:0;margin-top:-22px;transform-origin:center}
+.ob-cover-arch{position:absolute;width:310px;height:330px;left:50%;top:0;border:14px solid #ffffff80;border-bottom:0;border-radius:50% 50% 0 0;box-shadow:0 -1px 0 #c3bad866,inset 0 3px 3px #beb2d333;transform:translateX(-50%)}
+.ob-cover-photo{position:absolute;left:53px;top:14px;width:184px;height:244px;margin:0;background:#fcfcf8;padding:9px 9px 30px;transform:rotate(-9deg);box-shadow:2px 5px 10px #61718125}
+.ob-cover-photo img{display:block;width:100%;height:100%;object-fit:cover;filter:saturate(.4) hue-rotate(25deg)}
+.ob-cover-photo figcaption{display:block;font:italic 13px OmbreCover,'Times New Roman',serif;text-align:center;margin-top:6px;white-space:nowrap}
+.ob-cover-paper{position:absolute;left:calc(50% - 187.5px);top:137px;width:375px;min-height:181px;padding:18px 20px 22px;background:linear-gradient(115deg,#fffefd,#faf8fd);box-shadow:2px 4px 0 #c4b9d442,3px 8px 14px #8a779e1c;transform:rotate(-3deg);text-align:center;border:1px solid #cec5dd80;z-index:3}
+.ob-cover-paper::before{content:'';position:absolute;inset:5px;pointer-events:none;border:1px solid #c7bfd666}
+.ob-cover-paper .ob-cover-small{font:italic 16px/1.3 OmbreCover,'Times New Roman',serif;text-align:left;color:var(--cover-muted);margin:0}
+.ob-cover-small span{display:block}
+.ob-cover-paper h2{font:italic 74px/.95 OmbreCover,'Times New Roman',serif;font-weight:400;color:var(--cover-ink);margin:8px 0 8px;letter-spacing:-3px}
+.ob-cover-stamp{position:absolute;left:468px;top:103px;width:79px;height:79px;border:3px double #a59ab6;border-radius:50%;display:flex;align-items:center;flex-direction:column;justify-content:center;gap:4px;transform:rotate(16deg);font:7px 'Courier New',monospace;color:#897b9b;z-index:5;mix-blend-mode:multiply}
+.ob-cover-stamp svg{width:33px;height:33px;fill:none;stroke:currentColor;stroke-width:1.1}
+.ob-cover-stamp::after{content:'';position:absolute;right:68%;top:28px;width:83px;height:23px;background:repeating-linear-gradient(180deg,transparent 0 5px,#a59ab680 6px 7px,transparent 8px);transform:rotate(-6deg)}
+.ob-cover-photo-stack{position:absolute;left:460px;top:20px;width:154px;height:204px;pointer-events:none}
+.ob-polaroid-back{position:absolute;inset:0;background:#fbf9fc;border:1px solid #d5ccdf;box-shadow:2px 4px 7px #79638515}
+.ob-polaroid-back-one{transform:translate(7px,5px) rotate(15deg);background:linear-gradient(#e4deee 0 72%,#fffdfc 72%)}
+.ob-polaroid-back-two{transform:translate(-7px,6px) rotate(2deg);background:linear-gradient(#c9cedf 0 72%,#fffdfc 72%)}
+.ob-polaroid-front{position:absolute;inset:0;margin:0;padding:8px 8px 30px;background:#fffdfb;border:1px solid #d5ccdf;box-shadow:2px 4px 9px #73608120;transform:rotate(8deg);z-index:2}
+.ob-polaroid-front img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 49%;filter:saturate(.65) brightness(1.12)}
+.ob-polaroid-front figcaption{font:italic 14px OmbreCover,'Times New Roman',serif;text-align:center;margin-top:6px;color:#82748e}
+.ob-photo-clip{position:absolute;left:52px;top:-20px;width:46px;height:42px;object-fit:contain;transform:rotate(8deg);filter:drop-shadow(1px 2px 1px #75637d26);z-index:4}
+.ob-cover-sticker{position:absolute;display:block;object-fit:contain;pointer-events:none;filter:drop-shadow(1px 3px 2px #77628430);z-index:4}
+.ob-cover-sticker-winter{left:270px;top:-5px;width:158px;height:158px;transform:rotate(3deg)}
+.ob-cover-sticker-sleep{left:577px;top:109px;width:84px;height:164px;transform:rotate(6deg);z-index:6}
+/* 鸟笼贴纸：左侧拍立得下方，压住信封左下角 */
+.ob-cover-sticker-birdcage{left:44px;top:246px;width:100px;height:122px;transform:rotate(-7deg);z-index:4}
+.ob-flower-pendant{position:absolute;left:74px;top:12px;width:46px;height:170px;transform-origin:0 0;transform:rotate(0deg);z-index:7;will-change:auto}
+.ob-pendant-string{position:absolute;left:0;top:0;width:24px;height:110px;fill:none;stroke:#8b7d96;stroke-width:.85;stroke-linecap:round}
+.ob-flower-pendant img{position:absolute;left:-13px;top:96px;width:46px;height:52px;object-fit:contain;filter:drop-shadow(1px 3px 2px #79608630)}
+.ob-cover-ticket{position:absolute;left:391px;top:288px;width:150px;height:65px;background:#f8f5fa;border:1px dashed #bdb1cd;box-shadow:2px 3px 5px #8d7b9b15;transform:rotate(8deg);display:grid;grid-template-columns:1fr 31px;padding:9px 10px;gap:4px;pointer-events:none;z-index:6}
+.ob-cover-ticket>span:first-child{font-size:8px;letter-spacing:.5px;white-space:nowrap}
+.ob-cover-ticket time{font:23px/.9 OmbreCover,'Times New Roman',serif;grid-row:2;letter-spacing:2px}
+.ob-cover-ticket .ob-cover-barcode{grid-column:2;grid-row:1/3;background:repeating-linear-gradient(90deg,var(--cover-ink) 0 1px,transparent 1px 3px,var(--cover-ink) 3px 5px,transparent 5px 8px);opacity:.6}
+.ob-cover-controls{position:relative;width:min(330px,100%);min-height:175px;text-align:center;margin-top:3px}
+.ob-cover #auth-subtitle{font-size:11px;line-height:1.7;letter-spacing:1px;color:var(--cover-muted);margin:0 0 17px;min-height:19px}
+.ob-cover form{margin:0}
+.ob-cover .ob-cover-label{display:block;text-align:left;font-size:11px;letter-spacing:1px;margin:0 0 8px;color:#746481}
+.ob-cover .ob-password-field{position:relative;margin-bottom:13px}
+#auth-overlay.ob-cover input{display:block;width:100%;min-height:45px;border:1px solid var(--border);border-radius:3px;padding:11px 14px;background:#fffefdde;color:var(--cover-ink);font-size:13px;line-height:1.6;box-shadow:0 2px 0 #b6a8c91a;letter-spacing:1px;transition:border-color .2s,box-shadow .2s;outline:none}
+.ob-cover input:focus{border-color:#aa96c0;box-shadow:0 0 0 3px #cbbce04d}
+.ob-cover input::placeholder{color:#a097af;font-size:11px;letter-spacing:1px}
+.ob-password-field input{padding-right:45px}
+#auth-overlay.ob-cover .ob-password-toggle{position:absolute;right:7px;top:6px;display:grid;place-items:center;width:32px;height:32px;min-height:0;border:0;background:transparent;padding:6px;border-radius:2px;color:#9a89af;box-shadow:none}
+.ob-password-toggle svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round}
+/* 面板的通用裸按钮含 !important，封面只在自己的范围内恢复纸片边框。 */
+#auth-overlay.ob-cover .ob-cover-submit{display:flex;align-items:center;justify-content:center;gap:26px;width:100%;min-height:46px;background:var(--cover-paper);border:1px solid var(--cover-line)!important;border-radius:2px!important;padding:11px 19px;font-size:13px;letter-spacing:3px;box-shadow:0 3px 0 #bcb0cf54!important;transition:transform .25s,box-shadow .25s}
+.ob-cover-submit svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
+.ob-cover-submit:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 5px 0 #bcb0cf54}
+.ob-cover-submit:hover:not(:disabled) svg{transform:translateX(4px)}
+#auth-overlay.ob-cover .ob-cover-link{border:0;background:none;border-bottom:1px solid #bdb1ce8c!important;padding:2px 0;margin-top:17px;color:var(--cover-muted);font-size:10px;line-height:1.8;letter-spacing:1px;border-radius:0!important;min-height:0;box-shadow:none}
+.ob-cover .ob-cover-form-note{font-size:11px;line-height:1.8;color:var(--cover-muted);margin:0 0 14px}
+.ob-cover #auth-error{font-size:12px;line-height:1.9;color:#964c57;background:#fff9f8de;border:1px solid #dec5c9;padding:10px 13px;margin:15px 0 0;text-align:left;overflow-wrap:anywhere;letter-spacing:.4px}
+.ob-cover #auth-setup-form input,.ob-cover #auth-recovery-form input{margin-bottom:12px}
+.ob-cover details{border-top:1px solid #c5b9d580;text-align:left;margin:14px 0 18px;padding-top:11px}
+.ob-cover summary{font-size:10px;line-height:1.8;color:var(--cover-muted);cursor:pointer;letter-spacing:.4px}
+.ob-cover details>div{padding-top:12px}
+.ob-cover #auth-setup-remote-warning{font-size:11px;line-height:1.9;color:#735c37;background:#fff8e9e0;border:1px solid #d4c3a4;padding:10px 12px;margin-bottom:15px;text-align:left;overflow-wrap:anywhere}
+.ob-cover #auth-recovery-question{font-size:14px;line-height:1.8;color:var(--cover-ink);margin:0 0 15px}
+.ob-cover .ob-cover-footer{padding-top:19px;padding-bottom:94px;font-size:9px;letter-spacing:1.2px}
+.ob-cover-footer .ob-cover-french{font-size:16px}
+.ob-cover-footer>span:last-child{font-size:9px}
+.ob-cover[aria-busy=true] .ob-cover-submit{cursor:wait}
+/* 揭幕期间封面单独成层：内容栅格保持不动，每帧只更新遮罩。 */
+.ob-cover.ob-cover-opening{pointer-events:none;will-change:transform,mask-image}
+.ob-cover-press-ripple,.ob-cover-waterlight{position:fixed;z-index:10001;pointer-events:none}
+.ob-cover-press-ripple{border:1px solid #ffffffd9;border-radius:50%;box-shadow:0 0 22px 9px #ffffff70,inset 0 0 18px 5px #ffffff52;transform:translate(-50%,-50%)}
+.ob-cover-waterlight{inset:0;width:100%;height:100%;opacity:0;will-change:opacity}
+@media(max-width:680px){
+  .ob-cover-frame{inset:8px;border-width:30px;opacity:.65}
+  .ob-cover .ob-cover-edge{padding:44px 9% 18px;font-size:9px;letter-spacing:1px}
+  .ob-cover-edge>span:last-child:not(:first-child){display:none}
+  .ob-cover .ob-cover-page{min-height:540px;padding:0 25px 10px}
+  .ob-cover-collage{transform:scale(.54);margin-top:-80px;margin-bottom:-75px}
+  .ob-cover-controls{width:min(310px,100%);margin-top:5px;min-height:190px}
+  .ob-cover #auth-subtitle{font-size:10px;margin-bottom:17px}
+  .ob-cover .ob-cover-footer{padding-top:15px;padding-bottom:42px}
+  .ob-cover-footer .ob-cover-french{font-size:15px}
+}
+@media(max-width:380px){.ob-cover-collage{transform:scale(.44);margin-top:-106px;margin-bottom:-101px}.ob-cover .ob-cover-page{padding-left:24px;padding-right:24px}}
+@media(max-height:760px) and (min-width:681px){.ob-cover-frame{border-width:48px}.ob-cover .ob-cover-edge{padding-top:76px;padding-bottom:17px}.ob-cover .ob-cover-page{min-height:500px}.ob-cover-collage{transform:scale(.86);margin-top:-43px;margin-bottom:-30px}.ob-cover-controls{min-height:169px}.ob-cover .ob-cover-footer{padding-top:12px;padding-bottom:76px}}
+@media(prefers-reduced-motion:reduce){.ob-cover *{transition:none!important;animation:none!important}}
