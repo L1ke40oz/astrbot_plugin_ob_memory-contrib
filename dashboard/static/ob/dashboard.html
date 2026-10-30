@@ -5656,11 +5656,7 @@ const BASE = location.origin;
 let allBuckets = [];
 let currentFilter = 'active';
 var BUCKET_SORT_MODES = ['score', 'created_desc', 'created_asc'];
-var bucketSort = 'score';
-try {
-  var storedBucketSort = localStorage.getItem('ombreBucketSort');
-  if (BUCKET_SORT_MODES.includes(storedBucketSort)) bucketSort = storedBucketSort;
-} catch (_) { /* localStorage unavailable: keep the compatible score default */ }
+var bucketSort = 'created_desc';
 var bucketLoadGeneration = 0;
 var selectedBucketIds = new Set();
 var developerMode = localStorage.getItem('ombreDeveloperMode') === 'true';
@@ -5678,9 +5674,8 @@ function syncBucketSortControl() {
 }
 
 async function setBucketSort(value) {
-  var normalized = BUCKET_SORT_MODES.includes(value) ? value : 'score';
+  var normalized = BUCKET_SORT_MODES.includes(value) ? value : 'created_desc';
   bucketSort = normalized;
-  try { localStorage.setItem('ombreBucketSort', bucketSort); } catch (_) {}
   bucketPage = 1;
   syncBucketSortControl();
   await loadBuckets();
