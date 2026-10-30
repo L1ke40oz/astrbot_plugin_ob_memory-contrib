@@ -205,7 +205,7 @@
     anchors:  {n:'05', kicker:'ANCRES', zh:'锚点', fr:'Points d’ancrage', en:'Anchors · 不会漂走的坐标'},
     'import': {n:'06', kicker:'ARCHIVES', zh:'导入', fr:'Importer le passé', en:'Import · 把旧日子搬进来'},
     logs:     {n:'07', kicker:'JOURNAL', zh:'日志', fr:'Journal de bord', en:'Logs · 运行的痕迹'},
-    settings: {n:'08', kicker:'RÉGLAGES', zh:'设置', fr:'Petits réglages', en:'Settings · 让这里更像家'}
+    settings: {n:'05', kicker:'RÉGLAGES', zh:'设置', fr:'Petits réglages', en:'Settings · 让这里更像家'}
   };
   var DOW_FR = ['DIM.', 'LUN.', 'MAR.', 'MER.', 'JEU.', 'VEN.', 'SAM.'];
   var DOW_EN = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];

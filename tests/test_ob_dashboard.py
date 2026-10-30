@@ -75,7 +75,8 @@ async def test_shell_preserves_original_page_and_assets(dashboard):
     assert original.text == original_path.read_text(encoding="utf-8")
     ob = await client.get("/ob")
     assert ob.status_code == 200 and "/ob/static/adapter.js" in ob.text
-    assert 'value="violet-mist"' in ob.text and 'value="snowfall"' in ob.text
+    assert all(f'value="{palette}"' in ob.text for palette in ("lilac", "sand", "mist"))
+    assert 'value="violet-mist"' not in ob.text and 'value="snowfall"' not in ob.text
     assert "/ob/static/dashboard-journal.js" in ob.text
     assert "/ob/static/login-cover.css" in ob.text
     assert "currentFilter = 'active'" in ob.text

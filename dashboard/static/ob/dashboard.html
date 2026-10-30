@@ -4,95 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- 登录状态确认前只露出纸色底：大页面分段到达时，不先画出面板或旧样式。 -->
-<style>html.auth-pending,html.auth-pending body{background:#f3f1fb!important}html.auth-pending body>:not(#auth-overlay):not(.ob-cover-press-ripple):not(.ob-cover-waterlight){visibility:hidden!important}html[data-palette="violet-mist"] body.dreamcloud {
-  --bg: #F4F0F8;
-  --bg-gradient: linear-gradient(145deg,#F4F0F8,#E9E0F1 55%,#F4F0F8);
-  --surface: #FAF7FD;
-  --surface-solid: #EEE7F5;
-  --border: #D9CCE8;
-  --border-strong: #9B89B3;
-  --text: #3D3450;
-  --text-dim: #655675;
-  --text-light: #716181;
-  --accent: #9B89B3;
-  --accent-ink: #655078;
-  --accent-light: #D9CCE8;
-  --accent-glow: rgba(155,137,179,.2);
-  --positive: #426D58;
-  --negative: #AD414F;
-  --warning: #806025;
-  --shadow-light: rgba(250,247,253,.8);
-  --shadow-dark: rgba(61,52,80,.12);
-  --shadow-dark-subtle: rgba(61,52,80,.06);
-  --lcd: #EEE7F5;
-  --lcd-text: #3D3450;
-  --lcd-dim: #655675;
-  --lcd-glow: rgba(155,137,179,.12);
-  --theme-input: #FAF7FD;
-  --theme-tint: #E8DFF1;
-  --theme-translucent: rgba(250,247,253,.88);
-  --theme-nav-active: #D9CCE8;
-  --theme-accent-text: #655078;
-  --theme-accent-strong: #AB9ABD;
-  --theme-button-text: #241C33;
-  --theme-danger-text: #FAF7FD;
-  --theme-welcome-glow: rgba(217,204,232,.3);
-  --theme-header: rgba(244,240,248,.94);
-  --theme-mist-a: #E9E0F1;
-  --theme-mist-b: #F0EAF6;
-  --theme-overlay: rgba(250,247,253,.98);
-}
-html[data-palette="violet-mist"][data-theme="dark"] body.dreamcloud {
-  --bg: #1B1A2E;
-  --bg-gradient: linear-gradient(145deg,#29243E,#1B1A2E 55%,#302641);
-  --surface: #262239;
-  --surface-solid: #211E34;
-  --border: #493C60;
-  --border-strong: #9D8DC2;
-  --text: #F1ECF7;
-  --text-dim: #C5B9DB;
-  --text-light: #B6A7CD;
-  --accent: #5F4B8B;
-  --accent-ink: #B9A9D8;
-  --accent-light: #9D8DC2;
-  --accent-glow: rgba(157,141,194,.24);
-  --positive: #A0C8B4;
-  --negative: #EEA4B4;
-  --warning: #DDC28F;
-  --shadow-light: transparent;
-  --shadow-dark: rgba(15,12,28,.4);
-  --shadow-dark-subtle: rgba(15,12,28,.24);
-  --lcd: #262239;
-  --lcd-text: #F1ECF7;
-  --lcd-dim: #C5B9DB;
-  --lcd-glow: rgba(157,141,194,.16);
-  --theme-input: #211E34;
-  --theme-tint: #332B49;
-  --theme-translucent: rgba(38,34,57,.92);
-  --theme-nav-active: #403354;
-  --theme-accent-text: #B9A9D8;
-  --theme-accent-strong: #6E5899;
-  --theme-button-text: #F1ECF7;
-  --theme-danger-text: #1B1A2E;
-  --theme-welcome-glow: rgba(95,75,139,.2);
-  --theme-header: rgba(27,26,46,.95);
-  --theme-mist-a: #2A2440;
-  --theme-mist-b: #252038;
-  --theme-overlay: rgba(38,34,57,.98);
-}
-html[data-palette="violet-mist"] .dreamcloud .header { border-bottom-color: var(--border); }
-html[data-palette="violet-mist"] .dreamcloud .bucket-row:hover { background: var(--surface) !important; }
-html[data-palette="violet-mist"] .dreamcloud :is(button, input, select, textarea, a, summary):focus-visible {
-  outline-color: var(--accent-ink) !important;
-}
-html[data-palette="violet-mist"] .dreamcloud input:is([type=checkbox],[type=radio]) { accent-color: var(--accent-ink) !important; }
-html[data-palette="violet-mist"] .dreamcloud .palette-option input:checked + .palette-option-body {
-  border-color: var(--accent-ink); box-shadow: 0 0 0 1px var(--accent-ink);
-}
-html[data-palette="violet-mist"] .dreamcloud .palette-option input:focus-visible + .palette-option-body { outline-color: var(--accent-ink); }
-html[data-palette="violet-mist"] .dreamcloud .self-filter-btn.active { color: var(--theme-button-text); }
-html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var(--theme-danger-text) !important; }
-
+<style>html.auth-pending,html.auth-pending body{background:#f3f1fb!important}html.auth-pending body>:not(#auth-overlay):not(.ob-cover-press-ripple):not(.ob-cover-waterlight){visibility:hidden!important}
 </style>
 <meta name="referrer" content="no-referrer">
 <title>Ombre Brain</title>
@@ -116,7 +28,7 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
   function read(key) {
     try { return localStorage.getItem(key); } catch (_) { return null; }
   }
-  function validPalette(value) { return ['lilac','sand','mist','snowfall','violet-mist'].includes(value); }
+  function validPalette(value) { return ['lilac','sand','mist'].includes(value); }
   function validMode(value) { return value === 'light' || value === 'dark' || value === 'system'; }
   function restore() {
     var savedPalette = read(paletteKey);
@@ -134,20 +46,7 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
     document.documentElement.style.colorScheme = theme;
     var colors = palette === 'sand' ? ['#F0EBE3', '#1C1814'] :
       palette === 'mist' ? ['#E6EEF2', '#12171B'] :
-      palette === 'snowfall' ? ['#F1F3F7', '#20263B'] :
-      palette === 'violet-mist' ? ['#F4F0F8', '#1B1A2E'] : ['#F3F1FB', '#14121D'];
-    var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.content = colors[theme === 'dark' ? 1 : 0];
-    var button = document.getElementById('theme-toggle');
-    if (button) {
-      var label = theme === 'dark' ? '切换到浅色模式' : '切换到深色模式';
-      button.setAttribute('aria-label', label);
-      button.setAttribute('title', label);
-      button.setAttribute('aria-pressed', String(theme === 'dark'));
-      button.querySelector('.theme-toggle-icon').textContent = theme === 'dark' ? '☀' : '☾';
-      button.querySelector('.theme-toggle-label').textContent = theme === 'dark' ? '浅色' : '深色';
-    }
-    document.querySelectorAll('input[name="dashboard-palette"]').forEach(function (input) { input.checked = input.value === palette; });
+document.querySelectorAll('input[name="dashboard-palette"]').forEach(function (input) { input.checked = input.value === palette; });
     document.querySelectorAll('input[name="dashboard-color-mode"]').forEach(function (input) { input.checked = input.value === preference; });
   }
   function announce(saved) {
@@ -2639,201 +2538,13 @@ html[data-theme="dark"] .dreamcloud .header button:hover { background: var(--the
 
 
 /* Independent selectable palettes. */
-html[data-palette="snowfall"] body.dreamcloud {
-  --bg: #F1F3F7;
-  --bg-gradient: linear-gradient(145deg,#F5F7FA,#E8ECF5 55%,#EAE5EE);
-  --surface: #FBFCFE;
-  --surface-solid: #E9EDF4;
-  --border: #DCE2ED;
-  --border-strong: #B7C3D7;
-  --text: #39445C;
-  --text-dim: #5E6A82;
-  --text-light: #66728B;
-  --accent: #596F94;
-  --accent-light: #7E92B2;
-  --accent-glow: rgba(89,111,148,.13);
-  --positive: #587e6a;
-  --negative: #b94d50;
-  --warning: #946c37;
-  --shadow-light: rgba(255,255,255,.75);
-  --shadow-dark: rgba(39,51,77,.10);
-  --shadow-dark-subtle: rgba(39,51,77,.045);
-  --lcd: #E5EAF3;
-  --lcd-text: #39445C;
-  --lcd-dim: #5E6A82;
-  --lcd-glow: rgba(89,111,148,.06);
-  --theme-input: #F8FAFD;
-  --theme-tint: #E6EBF4;
-  --theme-translucent: rgba(251,252,254,.85);
-  --theme-nav-active: #DEE6F2;
-  --theme-accent-text: #465F87;
-  --theme-accent-strong: #425A81;
-  --theme-button-text: #FFFFFF;
-  --theme-welcome-glow: rgba(179,184,211,.22);
-  --theme-header: rgba(247,249,252,.93);
-  --theme-mist-a: #E2E8F3;
-  --theme-mist-b: #EAE3ED;
-  --theme-overlay: rgba(248,250,253,.98);
-  --scene-mountain: #9BAAC4;
-  --scene-snow: #FBFCFE;
-  --scene-line: #9AAAC4;
-  --scene-star: #7086AD;
-  --scene-horizon: #DDD3E2;
-}
-html[data-palette="snowfall"][data-theme="dark"] body.dreamcloud {
-  --bg: #20263B;
-  --bg-gradient: linear-gradient(150deg,#20273F,#2B3350 55%,#3A3C56);
-  --surface: #2A324A;
-  --surface-solid: #242C42;
-  --border: rgba(181,197,224,.15);
-  --border-strong: #657696;
-  --text: #EEF2FA;
-  --text-dim: #BDC7DD;
-  --text-light: #B2BDD5;
-  --accent: #B9CBE8;
-  --accent-light: #D9E4F5;
-  --accent-glow: rgba(185,203,232,.12);
-  --positive: #A1C7B6;
-  --negative: #EBA6AF;
-  --warning: #DBC49C;
-  --shadow-light: transparent;
-  --shadow-dark: rgba(8,14,32,.28);
-  --shadow-dark-subtle: rgba(8,14,32,.15);
-  --lcd: #2B354E;
-  --lcd-text: #EEF2FA;
-  --lcd-dim: #BDC7DD;
-  --theme-input: #252E45;
-  --theme-tint: #34405A;
-  --theme-translucent: rgba(40,49,73,.88);
-  --theme-nav-active: #3A4865;
-  --theme-accent-text: #D5E1F4;
-  --theme-accent-strong: #D8E5F7;
-  --theme-button-text: #202C44;
-  --theme-welcome-glow: rgba(177,187,222,.10);
-  --theme-header: rgba(29,36,57,.95);
-  --theme-mist-a: #2C3554;
-  --theme-mist-b: #363249;
-  --theme-overlay: rgba(36,45,68,.98);
-  --lcd-glow: rgba(185,203,232,.08);
-  --scene-mountain: #697A9C;
-  --scene-snow: #CDD9EF;
-  --scene-line: #B5C7E6;
-  --scene-star: #E5EEFF;
-  --scene-horizon: #C4ADC9;
-}
 /* Quiet winter light: a snowfield, distant mountains and restrained starlight. */
-html[data-palette="snowfall"] .dreamcloud .header { border-bottom-color: var(--border); }
-html[data-palette="snowfall"] .dreamcloud .header h1 { letter-spacing: -.4px; }
-html[data-palette="snowfall"] .dreamcloud .tabs { border-bottom-color: var(--border); }
-html[data-palette="snowfall"] .dreamcloud .tab { border-radius: 10px; }
-html[data-palette="snowfall"] .dreamcloud .tab.active { border-color: transparent !important; }
-html[data-palette="snowfall"] .dreamcloud .search-bar input { border-radius: 12px !important; }
-html[data-palette="snowfall"] .dreamcloud .filter-btn { border-radius: 12px !important; background: transparent !important; }
-html[data-palette="snowfall"] .dreamcloud .filter-btn.active { background: var(--accent) !important; }
-html[data-palette="snowfall"] .dreamcloud .dream-primary, html[data-palette="snowfall"] .dreamcloud .dream-secondary { border-radius: 12px !important; padding-left: 20px; padding-right: 20px; }
-html[data-palette="snowfall"] .dreamcloud .bucket-row, html[data-palette="snowfall"] .dreamcloud .bucket-row:nth-child(3n+2) {
-  border-radius: 14px; box-shadow: 0 4px 20px rgba(35,47,74,.025) !important;
-}
-html[data-palette="snowfall"] .dreamcloud .bucket-row:hover { box-shadow: 0 5px 22px rgba(35,47,74,.055) !important; }
-html[data-palette="snowfall"][data-theme="dark"] .dreamcloud .bucket-row:hover { background: #303B56 !important; }
-html[data-palette="snowfall"] .dreamcloud .bucket-row .icon { border-radius: 8px; background: transparent; }
-html[data-palette="snowfall"] .dreamcloud .domain-pill { border-radius: 7px; padding: 2px 7px; }
-html[data-palette="snowfall"] .dreamcloud .config-section { border-radius: 14px; }
 @media (max-width:1100px) {
 }
 @media (max-width:700px) {
 }
 
 /* Native radio controls keep the theme picker usable with a keyboard. */
-/* 紫雾：以用户色卡为主色，补充分层、文字及交互所需的衍生色。 */
-html[data-palette="violet-mist"] body.dreamcloud {
-  --bg: #F4F0F8;
-  --bg-gradient: linear-gradient(145deg,#F4F0F8,#E9E0F1 55%,#F4F0F8);
-  --surface: #FAF7FD;
-  --surface-solid: #EEE7F5;
-  --border: #D9CCE8;
-  --border-strong: #9B89B3;
-  --text: #3D3450;
-  --text-dim: #655675;
-  --text-light: #716181;
-  --accent: #9B89B3;
-  --accent-ink: #655078;
-  --accent-light: #D9CCE8;
-  --accent-glow: rgba(155,137,179,.2);
-  --positive: #426D58;
-  --negative: #AD414F;
-  --warning: #806025;
-  --shadow-light: rgba(250,247,253,.8);
-  --shadow-dark: rgba(61,52,80,.12);
-  --shadow-dark-subtle: rgba(61,52,80,.06);
-  --lcd: #EEE7F5;
-  --lcd-text: #3D3450;
-  --lcd-dim: #655675;
-  --lcd-glow: rgba(155,137,179,.12);
-  --theme-input: #FAF7FD;
-  --theme-tint: #E8DFF1;
-  --theme-translucent: rgba(250,247,253,.88);
-  --theme-nav-active: #D9CCE8;
-  --theme-accent-text: #655078;
-  --theme-accent-strong: #AB9ABD;
-  --theme-button-text: #241C33;
-  --theme-danger-text: #FAF7FD;
-  --theme-welcome-glow: rgba(217,204,232,.3);
-  --theme-header: rgba(244,240,248,.94);
-  --theme-mist-a: #E9E0F1;
-  --theme-mist-b: #F0EAF6;
-  --theme-overlay: rgba(250,247,253,.98);
-}
-html[data-palette="violet-mist"][data-theme="dark"] body.dreamcloud {
-  --bg: #1B1A2E;
-  --bg-gradient: linear-gradient(145deg,#29243E,#1B1A2E 55%,#302641);
-  --surface: #262239;
-  --surface-solid: #211E34;
-  --border: #493C60;
-  --border-strong: #9D8DC2;
-  --text: #F1ECF7;
-  --text-dim: #C5B9DB;
-  --text-light: #B6A7CD;
-  --accent: #5F4B8B;
-  --accent-ink: #B9A9D8;
-  --accent-light: #9D8DC2;
-  --accent-glow: rgba(157,141,194,.24);
-  --positive: #A0C8B4;
-  --negative: #EEA4B4;
-  --warning: #DDC28F;
-  --shadow-light: transparent;
-  --shadow-dark: rgba(15,12,28,.4);
-  --shadow-dark-subtle: rgba(15,12,28,.24);
-  --lcd: #262239;
-  --lcd-text: #F1ECF7;
-  --lcd-dim: #C5B9DB;
-  --lcd-glow: rgba(157,141,194,.16);
-  --theme-input: #211E34;
-  --theme-tint: #332B49;
-  --theme-translucent: rgba(38,34,57,.92);
-  --theme-nav-active: #403354;
-  --theme-accent-text: #B9A9D8;
-  --theme-accent-strong: #6E5899;
-  --theme-button-text: #F1ECF7;
-  --theme-danger-text: #1B1A2E;
-  --theme-welcome-glow: rgba(95,75,139,.2);
-  --theme-header: rgba(27,26,46,.95);
-  --theme-mist-a: #2A2440;
-  --theme-mist-b: #252038;
-  --theme-overlay: rgba(38,34,57,.98);
-}
-html[data-palette="violet-mist"] .dreamcloud .header { border-bottom-color: var(--border); }
-html[data-palette="violet-mist"] .dreamcloud .bucket-row:hover { background: var(--surface) !important; }
-html[data-palette="violet-mist"] .dreamcloud :is(button, input, select, textarea, a, summary):focus-visible {
-  outline-color: var(--accent-ink) !important;
-}
-html[data-palette="violet-mist"] .dreamcloud input:is([type=checkbox],[type=radio]) { accent-color: var(--accent-ink) !important; }
-html[data-palette="violet-mist"] .dreamcloud .palette-option input:checked + .palette-option-body {
-  border-color: var(--accent-ink); box-shadow: 0 0 0 1px var(--accent-ink);
-}
-html[data-palette="violet-mist"] .dreamcloud .palette-option input:focus-visible + .palette-option-body { outline-color: var(--accent-ink); }
-html[data-palette="violet-mist"] .dreamcloud .self-filter-btn.active { color: var(--theme-button-text); }
-html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var(--theme-danger-text) !important; }
 
 .dreamcloud .appearance-description { color: var(--text-dim); font-size: 12px; line-height: 1.9; margin: 0 0 20px; }
 .dreamcloud .appearance-fieldset { border: 0; min-width: 0; margin: 0; padding: 0; }
@@ -2847,10 +2558,6 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
 .dreamcloud .palette-preview { display: grid; grid-template-columns: 1fr 1fr; height: 58px; border-radius: 7px; overflow: hidden; margin: 22px 0 13px; border: 1px solid rgba(120,120,140,.12); }
 .palette-preview-lilac > span:first-child { background: linear-gradient(135deg,#FFF8F6,#EBE0F8); }
 .palette-preview-lilac > span:last-child { background: linear-gradient(135deg,#211D27,#70515F); }
-.palette-preview-snowfall > span:first-child { background: linear-gradient(135deg,#F5F7FA,#B9CBE8); }
-.palette-preview-snowfall > span:last-child { background: linear-gradient(135deg,#20263B,#697A9C); }
-.palette-preview-violet-mist > span:first-child { background: linear-gradient(135deg,#F4F0F8,#D9CCE8 50%,#9B89B3); }
-.palette-preview-violet-mist > span:last-child { background: linear-gradient(135deg,#1B1A2E,#5F4B8B 55%,#9D8DC2); }
 .dreamcloud .palette-option strong { display: block; color: var(--text); font-size: 14px; font-weight: 500; }
 .dreamcloud .palette-description { display: block; margin-top: 7px; font-size: 11px; line-height: 1.8; color: var(--text-dim); }
 .dreamcloud .appearance-mode { margin-top: 24px; }
@@ -3387,112 +3094,7 @@ html[data-palette="violet-mist"] .dreamcloud #memory-delete-confirm { color: var
             </span>
           </label>
           <label class="palette-option">
-            <input type="radio" name="dashboard-palette" value="snowfall" onchange="setDashboardPalette(this.value)">
-            <span class="palette-option-body"><span class="palette-preview palette-preview-snowfall" aria-hidden="true"><span></span><span></span></span><strong>星雪暮色</strong><span class="palette-description">雪白与灰蓝，夜晚是靛蓝星光。</span></span>
-          </label>
-          <label class="palette-option">
-            <input type="radio" name="dashboard-palette" value="violet-mist" onchange="setDashboardPalette(this.value)">
-            <span class="palette-option-body"><span class="palette-preview palette-preview-violet-mist" aria-hidden="true"><span></span><span></span></span><strong>紫雾</strong><span class="palette-description">雾紫与藤萝，夜晚是深紫星空。</span></span>
-          </label>
-        </div>
-      </fieldset>
-      <fieldset class="appearance-fieldset appearance-mode">
-        <legend>明暗模式</legend>
-        <div class="appearance-mode-options">
-          <label><input type="radio" name="dashboard-color-mode" value="light" onchange="setDashboardColorMode(this.value)">浅色</label>
-          <label><input type="radio" name="dashboard-color-mode" value="dark" onchange="setDashboardColorMode(this.value)">深色</label>
-          <label><input type="radio" name="dashboard-color-mode" value="system" onchange="setDashboardColorMode(this.value)">跟随系统</label>
-        </div>
-      </fieldset>
-      <p id="appearance-status" class="appearance-status" role="status" aria-live="polite"></p>
-    </section>
-
-
-    <!-- ⓪ 版本 & 更新 -->
-    <div class="config-section" id="sec-version" data-sgroup="basics">
-      <h3>版本 & 更新 <span class="sec-en">Version &amp; Update</span></h3>
-      <p style="font-size:12px;color:var(--text-dim);line-height:1.8;margin-bottom:12px;"><a id="update-source-link" target="_blank" rel="noopener noreferrer" style="color:var(--accent-ink,var(--accent));">更新来源读取中…</a><br>从你的 fork 获取更新；原项目的新改动需要先合并到 fork。</p>
-      <div class="ver-status-row">
-        <span style="font-size:13px;">当前版本：<b id="ver-local-disp">…</b></span>
-        <button class="btn-secondary" onclick="checkGitHubVersion()" id="btn-check-ver" style="height:30px;padding:0 14px;font-size:12px;display:inline-flex;align-items:center;gap:5px;">
-          <i data-lucide="refresh-cw"></i> 检查 GitHub 更新
-        </button>
-        <span id="ver-checking" style="display:none;font-size:12px;color:var(--text-dim);">检查中…</span>
-        <span class="ver-badge ver-badge-ok"  id="ver-badge-ok"  style="display:none;">✓ 已是最新</span>
-        <span class="ver-badge ver-badge-new" id="ver-badge-new" style="display:none;">⬆ 有可用更新</span>
-        <span id="ver-error" style="display:none;font-size:12px;color:var(--negative);"></span>
-      </div>
-
-      <!-- 有新版本时显示的完整更新引导面板 -->
-      <div id="ver-update-panel" style="display:none">
-        <div style="font-weight:600;font-size:13px;margin-bottom:6px;">
-          目标版本：<span id="ver-remote-disp" style="color:var(--accent-ink,var(--accent))">—</span>
-          <span id="ver-remote-date" style="font-size:11px;color:var(--text-dim);font-weight:400;margin-left:8px;"></span>
-        </div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin:10px 0 4px;">更新说明</div>
-        <div class="ver-notes-box" id="ver-notes-box">—</div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--text-dim);margin:10px 0 4px;">当前部署信息（建议截图保存）</div>
-        <div class="ver-deploy-info" id="ver-deploy-info">载入中…</div>
-
-        <div style="font-size:12px;font-weight:600;color:var(--warning);margin:16px 0 8px;">⚠ 更新前请先完成以下两步</div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-          <button class="btn-primary" onclick="downloadExport()" id="btn-export-before-update" style="height:34px;padding:0 14px;font-size:12px;display:inline-flex;align-items:center;gap:5px;">
-            <i data-lucide="download"></i> ① 导出记忆备份
-          </button>
-          <span style="font-size:11px;color:var(--text-dim);">下载 .zip，更新失败时可从「导入」恢复</span>
-        </div>
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:16px;line-height:1.7;">
-          ② 截图上方部署信息（端口、数据目录、访问地址），以备不时之需。
-        </div>
-
-        <!-- 热更新按钮 -->
-        <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
-          <button class="btn-primary" onclick="doHotUpdate()" id="btn-hot-update"
-            style="height:38px;padding:0 20px;font-size:13px;display:inline-flex;align-items:center;gap:7px;background:var(--accent);color:#fff;">
-            <i data-lucide="zap"></i> 立即热更新
-          </button>
-          <span style="font-size:11px;color:var(--text-dim);margin-left:10px;">
-            服务端自动下载新版并重启，记忆数据不受影响
-          </span>
-          <!-- 热更新持久性提示（用户反馈 #1）：Docker 下如实说明「已持久化 / 重建后会失效」 -->
-          <div id="ver-persist-note" style="display:none;margin-top:10px;font-size:12px;line-height:1.5;border-radius:8px;padding:9px 12px;"></div>
-          <!-- 依赖变化时是否自动 pip install（安全加固 #2 默认关闭；这里只是把已有的
-               config.update.allow_pip_install 暴露成可点的开关，不改默认值）。 -->
-          <div style="margin-top:10px;font-size:11px;color:var(--text-dim);line-height:1.6;">
-            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;color:var(--text);">
-              <input type="checkbox" id="update-allow-pip" onchange="toggleUpdateAllowPip(this.checked)" />
-              热更新遇到依赖变化时自动安装（<code>pip install</code>）
-            </label>
-            <div style="margin-top:2px;">默认关闭：自动装依赖会把"谁能点热更新"放大成任意 PyPI 包的执行面。只在你信任更新来源、又不想每次依赖变化都手动重建镜像时打开；关闭时遇到依赖变化会直接拒绝更新，不改动任何文件。</div>
-            <div id="update-allow-pip-msg" style="min-height:14px;margin-top:2px;"></div>
-          </div>
-        </div>
-
-        <!-- 更新进度日志 -->
-        <div id="ver-update-log" style="display:none;margin-top:12px;">
-          <div class="ver-deploy-info" id="ver-log-box" style="min-height:60px;white-space:pre-wrap;"></div>
-          <div id="ver-update-done" style="display:none;margin-top:8px;font-size:13px;font-weight:600;color:var(--positive);">
-            ✓ 更新完成！页面将自动刷新…
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- You 只暴露这一处总开关；内部记录与审核流程不进入 Dashboard。 -->
-    <div class="config-section" id="sec-you" data-sgroup="basics">
-      <h3>你 <span class="sec-en">You</span></h3>
-      <p id="you-setting-description" style="font-size:12px;color:var(--text-dim);line-height:1.7;margin:4px 0 12px;">
-        <span style="display:block;">在长期相处中慢慢理解你</span>
-        <span style="display:block;">关闭后不再更新或使用，不影响其他功能。</span>
-      </p>
-      <div class="hw-toggle-row" style="justify-content:space-between;gap:14px;">
-        <span id="you-toggle-label">关闭</span>
-        <span class="hw-switch" id="you-enabled-sw" role="switch" tabindex="0"
-          aria-checked="false" aria-labelledby="you-toggle-label" aria-describedby="you-setting-description"
-          onclick="toggleYouSetting(this)"
-          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleYouSetting(this);}"></span>
+"></span>
         <input type="checkbox" id="you-enabled" style="display:none" aria-hidden="true">
       </div>
       <div id="you-setting-msg" role="status" aria-live="polite" style="min-height:16px;margin-top:8px;font-size:12px;color:var(--text-dim);"></div>
