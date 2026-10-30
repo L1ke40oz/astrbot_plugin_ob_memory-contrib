@@ -1,0 +1,649 @@
+/* 主页手账风：浅色沿用登录封面（雾紫纸张 + 墨紫字），深色是夜空手账；顶部 tab 换成左侧星星导航。 */
+
+/* ── 星星导航 ───────────────────────────── */
+/* 颜色全部取自当前色系变量：换暖沙 / 雾蓝、切深浅色时星星跟着变 */
+.ob-journal nav.tabs{display:none!important}
+.ob-chime{
+  position:absolute;left:0;top:100%;z-index:5;width:76px;
+  display:flex;flex-direction:column;align-items:center;pointer-events:none;
+}
+.ob-chime>*{pointer-events:auto}
+/* 面板的通用按钮规则用一长串 :not() 抬高了优先级，这里用 id 前缀重置 */
+#ob-chime button{appearance:none;background:none!important;border:0!important;padding:0!important;margin:0!important;border-radius:0!important;box-shadow:none!important;min-width:0;min-height:0;max-width:none;color:inherit;font:inherit;transform:none;transition:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+/* 标题左边的星星按钮，本身不加任何外框 */
+body.ob-journal .header h1 button.ob-chime-hook{
+  appearance:none;display:inline-grid;place-items:center;flex-shrink:0;position:relative;z-index:6;
+  padding:0!important;margin:0!important;min-width:0!important;min-height:0!important;width:auto!important;height:auto!important;
+  background:none!important;border:0!important;border-radius:50%!important;box-shadow:none!important;
+  color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:none;
+}
+/* 标题需要 overflow:hidden 做省略号；四周留出 8px 裁剪余量（负外边距抵消），星星旋转、上抬时不被截断 */
+body.ob-journal .header h1{padding:8px;margin:-8px}
+.ob-journal .header h1 .ob-chime-brand-hidden{display:none!important}
+/* 「我」已经放进星星导航，左下角的悬浮按钮不再需要 */
+.ob-journal #self-fab{display:none!important}
+body.ob-journal .header h1 button.ob-chime-hook:focus-visible{outline:2px solid var(--accent)!important;outline-offset:4px}
+#ob-chime .ob-chime-tag:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:50%!important}
+
+/* 星星本体：纸色渐变填充 + 重点色描边 + 内圈细线 + 一点小闪光 */
+.ob-star{display:block;overflow:visible}
+.ob-star-stop-a{stop-color:var(--journal-paper,#fffefd)}
+.ob-star-stop-b{stop-color:var(--theme-tint,#f0edf8)}
+.ob-star-stop-c{stop-color:var(--accent-light,#a99bc4)}
+.ob-star-stop-d{stop-color:var(--accent,#7f6fa3)}
+.ob-star-body{fill:url(#ob-star-paper);stroke:var(--accent,#7f6fa3);stroke-width:1.8;stroke-linejoin:round;transition:fill .25s,stroke .25s}
+.ob-star-stitch{fill:none;stroke:var(--accent-light,#a99bc4);stroke-width:1;stroke-dasharray:2.4 2.2;stroke-linejoin:round;opacity:.8}
+.ob-star-icon{fill:none;stroke:var(--accent-ink,#5f5385);stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round;transition:stroke .25s}
+.ob-star-icon .ob-star-fill{fill:var(--accent-ink,#5f5385);stroke:none}
+.ob-star-glint{fill:var(--accent-light,#a99bc4);transform-box:fill-box;transform-origin:center;animation:ob-glint 2.8s ease-in-out infinite}
+.ob-star-glint-b{animation-delay:-1.4s}
+@keyframes ob-glint{0%,100%{opacity:.25;scale:.6}50%{opacity:1;scale:1}}
+
+/* 标题旁的星星按钮：外圈一层很淡的光晕，悬停时转一点、亮一点 */
+.ob-star-hook{width:44px;height:44px;filter:drop-shadow(0 2px 3px var(--shadow-dark,#5f5a8f33));transition:transform .3s cubic-bezier(.2,.8,.3,1),filter .3s}
+.ob-star-halo{fill:var(--accent-glow,rgba(154,137,181,.16));stroke:var(--journal-line,#c3bad8);stroke-width:1;stroke-dasharray:2 3}
+.ob-star-core{fill:var(--accent,#7f6fa3)}
+body.ob-journal .header h1 button.ob-chime-hook:hover .ob-star-hook{transform:rotate(-14deg) scale(1.06);filter:drop-shadow(0 0 8px var(--accent-light,#a99bc4))}
+body.ob-journal .header h1 button.ob-chime-hook[aria-expanded=true] .ob-star-body{fill:url(#ob-star-active)}
+body.ob-journal .header h1 button.ob-chime-hook[aria-expanded=true] .ob-star-core{fill:var(--journal-paper,#fff)}
+
+.ob-chime-list{
+  position:relative;list-style:none;margin:0;padding:0 0 4px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;overflow:visible;
+}
+.ob-chime-list[hidden]{display:none}
+/* 星星各自独立，不再相连；左右轻轻错开一点，像随手撒出来的 */
+.ob-chime-item{position:relative;width:76px;display:flex;justify-content:center}
+.ob-chime-item:nth-child(odd){padding-left:8px}
+.ob-chime-item:nth-child(even){padding-right:8px}
+#ob-chime .ob-chime-tag{position:relative;display:block;width:56px;height:56px}
+.ob-chime-swing{display:block;width:100%;height:100%;animation:ob-star-float 5s ease-in-out infinite;animation-delay:calc(var(--i,0) * -.6s)}
+@keyframes ob-star-float{0%,100%{translate:0 0;rotate:0deg}50%{translate:0 -3px;rotate:4deg}}
+.ob-chime-tag .ob-star{width:100%;height:100%;filter:drop-shadow(1px 3px 3px var(--shadow-dark,#5f5a8f30));transition:transform .3s cubic-bezier(.2,.8,.3,1),filter .3s}
+.ob-chime-tag:hover .ob-star{transform:rotate(18deg) scale(1.1);filter:drop-shadow(0 0 7px var(--accent-light,#a99bc4))}
+/* 当前所在页：星星填满重点色，图标反白，周围一圈光 */
+.ob-chime-item.is-active .ob-star-body{fill:url(#ob-star-active)}
+.ob-chime-item.is-active .ob-star-icon{stroke:var(--journal-paper,#fff)}
+.ob-chime-item.is-active .ob-star-icon .ob-star-fill{fill:var(--journal-paper,#fff)}
+.ob-chime-item.is-active .ob-star-stitch{stroke:var(--journal-paper,#fff);opacity:.55}
+.ob-chime-item.is-active .ob-star{filter:drop-shadow(0 0 7px var(--accent-light,#a99bc4)) drop-shadow(1px 3px 3px var(--shadow-dark,#5f5a8f30))}
+/* 喷射时的小火花 */
+.ob-star-sparks{position:fixed;inset:0;z-index:300;pointer-events:none;overflow:hidden}
+.ob-star-spark{position:absolute;width:6px;height:6px;border-radius:50%;background:var(--accent-light,#a99bc4);box-shadow:0 0 6px var(--accent-light,#a99bc4)}
+.ob-star-spark.is-star{width:11px;height:11px;border-radius:0;background:var(--accent,#7f6fa3);box-shadow:none;
+  clip-path:polygon(50% 0,61% 39%,100% 50%,61% 61%,50% 100%,39% 61%,0 50%,39% 39%)}
+
+/* 手账小标签：悬停、聚焦时从星星右侧探出 */
+.ob-chime-label{
+  position:absolute;left:calc(100% + 6px);top:50%;display:flex;flex-direction:column;gap:1px;
+  padding:6px 12px 6px 10px;white-space:nowrap;pointer-events:none;
+  background:var(--journal-paper,#fffefd);border:1px solid var(--journal-edge,#cec5dd);box-shadow:2px 3px 0 var(--shadow-dark-subtle,#c4b9d433);
+  clip-path:polygon(7px 0,100% 0,100% 100%,7px 100%,0 50%);
+  opacity:0;transform:translate(-8px,-50%) rotate(-2deg);transition:opacity .18s,transform .22s cubic-bezier(.2,.8,.3,1);
+}
+.ob-chime-label b{font:500 12px/1.4 'Songti SC','STSong','Noto Serif SC',serif;color:var(--text,#49435f);letter-spacing:1px;padding-left:4px}
+.ob-chime-label i{font:italic 12px/1.1 OmbreCover,'Times New Roman',serif;color:var(--text-dim,#80768f);padding-left:4px}
+.ob-chime-tag:hover .ob-chime-label,.ob-chime-tag:focus-visible .ob-chime-label{opacity:1;transform:translate(0,-50%) rotate(-2deg)}
+
+/* 矮屏收紧星星，避免一列太长 */
+@media (max-height:760px){
+  #ob-chime .ob-chime-tag{width:46px;height:46px}
+  .ob-chime-list{gap:3px}
+}
+/* 桌面始终预留星星的位置，开合导航时正文不横移。 */
+@media (min-width:1101px){
+  html:has(body.ob-journal){scrollbar-gutter:stable}
+  .ob-journal .content{padding-left:88px}
+}
+.ob-chime-scrim{display:none}
+@media (max-width:1100px){
+  /* 遮罩取当前配色的底色，换色系、深浅模式时跟着变 */
+  .ob-journal.ob-chime-open .ob-chime-scrim{display:block;position:fixed;inset:0;z-index:45;background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(3px)}
+  .ob-chime-label{opacity:1;transform:translate(0,-50%) rotate(-2deg)}
+  /* 头部在遮罩之上，展开时把搜索框等淡出，只留按钮和星星 */
+  .ob-journal.ob-chime-open .header>:not(h1):not(#ob-chime){opacity:.18;pointer-events:none;transition:opacity .2s}
+}
+@media (max-width:700px){.ob-journal .header h1{font-size:26px}}
+html[data-theme="dark"] .ob-chime-label{box-shadow:none}
+@media (prefers-reduced-motion:reduce){.ob-chime *,.ob-star-glint{transition:none!important;animation:none!important}}
+
+/* ── 手账纸张主题：浅色是雾紫信纸，深色是夜里的星空手账 ─────────────── */
+/* 两套只换颜色变量，结构规则共用；另有暖沙、雾蓝两套色系见文件末尾。
+   前缀 html 是为了和原有 html[data-palette] body.dreamcloud 同级，靠后出现即可压住 */
+html body.dreamcloud.ob-journal{
+  --bg:#f3f1fb;
+  --surface:#fffefd;--surface-solid:#f8f6fc;
+  --border:#ddd6ea;--border-strong:#c3bad8;
+  --text:#49435f;--text-dim:#80768f;--text-light:#a097af;
+  --accent:#7f6fa3;--accent-light:#a99bc4;--accent-ink:#5f5385;--accent-glow:rgba(154,137,181,.16);
+  --shadow-dark:rgba(110,98,140,.1);--shadow-dark-subtle:rgba(110,98,140,.05);
+  --lcd:#f3f0fa;--lcd-text:#49435f;--lcd-dim:#80768f;
+  --theme-input:#fffefde6;--theme-tint:#f0edf8;--theme-translucent:rgba(255,254,253,.88);
+  --theme-nav-active:#ebe6f6;--theme-accent-text:#5f5385;--theme-accent-strong:#685a8f;--theme-button-text:#ffffff;
+  --theme-header:rgba(243,241,251,.94);--theme-mist-a:#e4e6f8;--theme-mist-b:#f6eff8;--theme-overlay:rgba(255,254,253,.96);
+  --journal-paper:#fffefd;--journal-edge:#cec5dd99;--journal-stitch:#c7bfd666;--journal-line:#c3bad8;
+  --journal-shadow:2px 4px 0 #c4b9d442,3px 8px 14px #8a779e1a;
+  --journal-shadow-hover:2px 5px 0 #c4b9d455,4px 10px 18px #8a779e22;
+  --journal-press:0 3px 0 #bcb0cf44;--journal-press-strong:0 3px 0 #5f538533;
+  --journal-tape-a:#ddd8f1cc;--journal-tape-b:#e9e5f7cc;--journal-tape-c:#f0dfe8cc;--journal-tape-d:#f6ebf0cc;
+  --journal-icon:#f0edf8;--journal-panel:#fbfaff;
+  --journal-ink:#3b3658;--journal-ink-text:#ffffff;--journal-ink-soft:#8a82ad;
+  --journal-rule:#d3d9f1;--journal-grid:#dde1f4;--journal-dot:#cdc6e4;--journal-gingham:#b9b2e47a;--journal-gingham-bg:#efecfbd9;
+  /* 和登录页同一套：纸纹 + 自上而下的雾紫渐变 */
+  --journal-sky:url('/ob/static/login-paper-texture.svg'),
+    linear-gradient(180deg,#eae9f9 0%,#f3f1fb 46%,#fffefd 100%);
+  --journal-sky-size:256px 256px,100% 100%;
+  --journal-sky-blend:multiply,normal;
+  color:var(--text);
+  background:var(--bg);
+}
+html[data-theme="dark"] body.dreamcloud.ob-journal{
+  --bg:#14121d;
+  --surface:#211e2f;--surface-solid:#1b1928;
+  --border:#373250;--border-strong:#585079;
+  --text:#ebe6f8;--text-dim:#b4abcc;--text-light:#8f87aa;
+  --accent:#b7a6e6;--accent-light:#cfc3f2;--accent-ink:#cbbdf3;--accent-glow:rgba(183,166,230,.16);
+  --positive:#9fc9af;--negative:#f1929c;--warning:#e3bd88;
+  --shadow-light:transparent;--shadow-dark:rgba(0,0,0,.4);--shadow-dark-subtle:rgba(0,0,0,.2);
+  --lcd:#262238;--lcd-text:#ebe6f8;--lcd-dim:#b4abcc;
+  --theme-input:#1c1a29;--theme-tint:#2b2740;--theme-translucent:rgba(33,30,47,.92);
+  --theme-nav-active:#332e4b;--theme-accent-text:#d4c9f4;--theme-accent-strong:#c7b8f0;--theme-button-text:#1b1828;
+  --theme-header:rgba(20,18,29,.94);--theme-mist-a:#231f37;--theme-mist-b:#2a1f33;--theme-overlay:rgba(33,30,47,.98);
+  --journal-paper:#211e2f;--journal-edge:#3f3a5c;--journal-stitch:#ffffff14;--journal-line:#463f66;
+  --journal-shadow:2px 4px 0 #0000004d,3px 10px 20px #00000059;
+  --journal-shadow-hover:2px 5px 0 #00000059,4px 12px 24px #00000066;
+  --journal-press:0 3px 0 #00000059;--journal-press-strong:0 3px 0 #00000066;
+  --journal-tape-a:#5d5585b3;--journal-tape-b:#4c4570b3;--journal-tape-c:#6a4f6eb3;--journal-tape-d:#57425cb3;
+  --journal-icon:#2b2740;--journal-panel:#1d1a2a;
+  --journal-ink:#cbbdf3;--journal-ink-text:#1b1828;--journal-ink-soft:#8f87c0;
+  --journal-rule:#ffffff12;--journal-grid:#ffffff0c;--journal-dot:#ffffff1c;--journal-gingham:#8d84c066;--journal-gingham-bg:#3a3557d9;
+  /* 夜空：深靛渐变 + 稀疏小星点 */
+  --journal-sky:radial-gradient(1px 1px at 12% 22%,#ffffffb3 50%,transparent 51%),
+    radial-gradient(1px 1px at 68% 14%,#ffffff99 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 82% 61%,#e8dcff99 50%,transparent 51%),
+    radial-gradient(1px 1px at 33% 78%,#ffffff80 50%,transparent 51%),
+    radial-gradient(1px 1px at 52% 44%,#ffffff66 50%,transparent 51%),
+    linear-gradient(180deg,#1a1829 0%,#14121d 55%,#110f18 100%);
+  --journal-sky-size:auto;
+  --journal-sky-blend:normal;
+}
+/* 纸张底纹放在独立的固定图层里：滚动时由合成器平移，不再每帧重绘带混合模式的整页背景 */
+body.dreamcloud.ob-journal::before{
+  content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;will-change:transform;
+  background-image:var(--journal-sky,none);
+  background-size:var(--journal-sky-size,auto);
+  background-blend-mode:var(--journal-sky-blend,normal);
+}
+.ob-journal .header{
+  background:var(--theme-header)!important;backdrop-filter:none!important;
+  border-bottom:1px dashed var(--journal-line)!important;
+}
+.ob-journal .header h1{
+  font:italic 400 34px/1 OmbreCover,'Cormorant Garamond','Times New Roman',serif;letter-spacing:-1px;color:var(--text);
+}
+.ob-journal .version-badge{
+  font:10px 'Courier New',monospace!important;letter-spacing:1px;background:transparent!important;
+  border:1px dashed var(--journal-line);border-radius:0;padding:2px 6px;transform:rotate(-3deg);color:var(--text-dim);
+}
+.ob-journal .search-bar input{border-radius:3px!important;border-color:var(--journal-edge)!important;box-shadow:var(--journal-press)!important}
+.ob-journal .header .search-bar button{border-radius:2px!important}
+
+/* 卡片：纸片投影 + 内缩虚线框，像贴在本子上的便签 */
+.ob-journal :is(.bucket-row,.config-section,.sub-card,.form-panel,.breath-info,.plan-card,.letter-card,.self-entry,.them-person-card,.flow-step){
+  background:var(--journal-paper)!important;border:1px solid var(--journal-edge)!important;border-radius:3px!important;
+  box-shadow:var(--journal-shadow)!important;outline:1px dashed var(--journal-stitch);outline-offset:-6px;
+}
+.ob-journal .bucket-row:hover{background:var(--journal-paper)!important;box-shadow:var(--journal-shadow-hover)!important;transform:translateY(-1px)}
+.ob-journal .bucket-row:nth-child(3n+2){border-radius:3px!important}
+/* 和纸胶带：设置区与计划、信件卡片顶部 */
+.ob-journal :is(.config-section,.plan-card,.letter-card){position:relative}
+.ob-journal :is(.config-section,.plan-card,.letter-card)::after{
+  content:'';position:absolute;top:-9px;left:28px;width:76px;height:18px;pointer-events:none;
+  background:repeating-linear-gradient(135deg,var(--journal-tape-a) 0 6px,var(--journal-tape-b) 6px 12px);
+  transform:rotate(-4deg);box-shadow:0 1px 1px #00000014;
+  clip-path:polygon(2% 8%,98% 0,100% 50%,97% 100%,0 94%,3% 50%);
+}
+.ob-journal .config-section:nth-of-type(even)::after{left:auto;right:34px;transform:rotate(3deg);background:repeating-linear-gradient(135deg,var(--journal-tape-c) 0 6px,var(--journal-tape-d) 6px 12px)}
+.ob-journal .bucket-row .icon{border-radius:50%;background:var(--journal-icon);border:1px dashed var(--journal-line)}
+.ob-journal .domain-pill{border-radius:2px;background:var(--journal-icon);border:1px solid var(--border)}
+
+/* 按钮与筛选：纸片按钮 */
+.ob-journal :is(.dream-primary,.dream-secondary,.filter-btn,.pager-btn){border-radius:3px!important}
+.ob-journal .dream-primary{box-shadow:var(--journal-press-strong)!important;letter-spacing:1px}
+.ob-journal .dream-secondary{background:var(--journal-paper)!important;border-color:var(--journal-line)!important;box-shadow:var(--journal-press)!important}
+.ob-journal .filter-btn{border-style:dashed!important;background:var(--theme-translucent)!important}
+.ob-journal .filter-btn.active{border-style:solid!important;box-shadow:var(--journal-press-strong)!important;background:var(--accent)!important;color:var(--theme-button-text)!important}
+.ob-journal :is(input:not([type=checkbox]):not([type=range]),select,textarea){border-radius:3px!important;border-color:var(--journal-edge)!important}
+.ob-journal :is(.section-title,.detail-panel h2,.config-section h3){font-family:'Songti SC','STSong','Noto Serif SC',serif;letter-spacing:1px}
+.ob-journal :is(.detail-panel,.self-panel){border-radius:4px;background:var(--journal-panel);box-shadow:-10px 0 40px #00000026}
+.ob-journal :is(#network-container,#network-canvas,#network-canvas.star-active){border-radius:4px;background:var(--journal-panel)!important}
+.ob-journal .bucket-bulkbar{border-top-style:dashed;border-bottom-style:dashed}
+
+/* ── 记忆星河（原记忆网络页）：像一张贴在手账里的夜空照片 ── */
+.ob-galaxy-mode>:not(.ob-galaxy):not(.ob-hero){display:none!important}
+.ob-galaxy{
+  position:relative;height:max(460px,calc(100vh - 300px));overflow:hidden;isolation:isolate;
+  background:#050209;color:#f3eaf5;font-family:'Noto Serif SC','Songti SC','STSong',serif;
+  border:9px solid #fffefd;border-radius:3px;box-shadow:2px 4px 0 #c4b9d442,3px 10px 22px #4d3f6a33;
+}
+.ob-galaxy[hidden]{display:none}
+html[data-theme="dark"] .ob-galaxy{border-color:#2c2938;box-shadow:0 10px 30px #0006}
+.ob-galaxy-gl{position:absolute;inset:0;width:100%!important;height:100%!important;display:block;touch-action:none;cursor:grab}
+.ob-galaxy-gl:active{cursor:grabbing}
+.ob-galaxy-head{position:absolute;top:0;left:0;max-width:52%;z-index:10;text-align:left;padding:22px 0 0 24px;pointer-events:none}
+.ob-galaxy-head h2{margin:0;font:italic 600 30px/1.2 'Playfair Display',OmbreCover,'Times New Roman',serif;color:#f6ecfa;text-shadow:0 0 30px rgba(210,150,230,.6);letter-spacing:0}
+.ob-galaxy-head .sub{margin:2px 0 0;font:italic 14px OmbreCover,'Cormorant Garamond',serif;color:rgba(220,200,240,.55);letter-spacing:.16em}
+.ob-galaxy-head .zh{margin:14px 0 0;font-weight:300;font-size:12.5px;color:rgba(220,205,238,.45);letter-spacing:.16em}
+.ob-galaxy-head .count{margin:8px 0 0;font-size:11.5px;color:rgba(232,212,244,.62);letter-spacing:.14em}
+.ob-galaxy-head .count:empty{display:none}
+/* 右上角「寻找一颗记忆星」：选中后点亮对应的星并展开卡片 */
+.ob-galaxy-tools{position:absolute;top:24px;right:22px;z-index:22;width:min(240px,44%)}
+.ob-galaxy-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#ob-galaxy .ob-galaxy-picker{appearance:none;-webkit-appearance:none;width:100%;min-height:36px;margin:0;padding:7px 30px 7px 13px!important;
+  font:13px/1.4 'Songti SC','STSong','Noto Serif SC',serif;letter-spacing:.06em;color:#f3e6f8!important;
+  background:rgba(22,12,34,.78) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5l5 5 5-5' fill='none' stroke='%23e8d4f4' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") right 12px center/11px 8px no-repeat!important;
+  border:1px solid rgba(220,190,240,.32)!important;border-radius:99px!important;box-shadow:0 0 18px rgba(190,140,230,.18)!important;
+  text-overflow:ellipsis;white-space:nowrap;overflow:hidden;cursor:pointer;text-align:left;display:block}
+#ob-galaxy .ob-galaxy-picker:hover,#ob-galaxy .ob-galaxy-picker:focus-visible{border-color:rgba(240,200,240,.6)!important;outline:none}
+#ob-galaxy .ob-galaxy-picker:disabled{opacity:.5;cursor:default}
+.ob-galaxy-menu{position:absolute;top:calc(100% + 8px);right:0;width:100%;max-height:min(300px,46vh);overflow-y:auto;overscroll-behavior:contain;
+  padding:5px;background:#1b1029;border:1px solid rgba(220,190,240,.38);border-radius:12px;box-shadow:0 12px 28px #0007;scrollbar-width:thin;scrollbar-color:#9c79b5 #1b1029}
+.ob-galaxy-menu[hidden]{display:none!important}
+#ob-galaxy .ob-galaxy-menu .ob-galaxy-option{display:block;width:100%;min-height:40px;height:auto;margin:0;padding:9px 10px!important;
+  border:0!important;border-radius:6px!important;box-shadow:none!important;background:transparent!important;color:#f3e6f8!important;
+  font:13px/1.5 'Songti SC','STSong','Noto Serif SC',serif;text-align:left;white-space:normal;overflow-wrap:anywhere;cursor:pointer;transform:none}
+#ob-galaxy .ob-galaxy-menu .ob-galaxy-option:is(:hover,:focus-visible,[aria-selected=true]){background:#ac86c533!important;outline:none}
+#ob-galaxy .ob-galaxy-menu .ob-galaxy-option:focus-visible{outline:1px solid #e8d4f4!important;outline-offset:-2px}
+.ob-galaxy-card .c-related{font-size:11px;color:rgba(232,208,244,.75)}
+.ob-galaxy-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;margin:0;z-index:12;
+  font:italic 16px OmbreCover,'Cormorant Garamond',serif;color:rgba(225,205,240,.55);letter-spacing:.12em;pointer-events:none}
+.ob-galaxy-hint{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);margin:0;z-index:7;white-space:nowrap;pointer-events:none;
+  font:italic 12px OmbreCover,'Cormorant Garamond',serif;color:rgba(225,205,240,.35);letter-spacing:.14em;transition:opacity .8s}
+/* 低存在感：文字从底部渐隐浮现，没有卡片框，星空是主角 */
+.ob-galaxy-card{position:absolute;left:0;right:0;bottom:0;z-index:21;max-height:52%;display:flex;flex-direction:column;
+  padding:40px 30px 20px;background:linear-gradient(to top,rgba(5,2,12,.92) 34%,rgba(5,2,12,.5) 66%,rgba(5,2,12,0));
+  opacity:0;transform:translateY(22px);pointer-events:none;transition:opacity .55s ease,transform .55s ease}
+.ob-galaxy-card.show{opacity:1;transform:none;pointer-events:auto}
+.ob-galaxy-card .c-head{display:flex;align-items:center;gap:12px;margin-bottom:6px;max-width:760px}
+.ob-galaxy-card .c-star{width:30px;height:30px;flex-shrink:0}
+.ob-galaxy-card .c-title{flex:1}
+.ob-galaxy-card .c-title .t{font-size:17px;color:#fcf0fa;line-height:1.3;font-weight:500}
+.ob-galaxy-card .c-title .en{font:italic 12.5px OmbreCover,'Cormorant Garamond',serif;color:rgba(230,205,242,.7);letter-spacing:.1em;margin-top:1px}
+.ob-galaxy-card .c-meta{display:flex;align-items:center;gap:10px;margin:8px 0 12px;flex-wrap:wrap}
+.ob-galaxy-card .c-date{font:italic 13px OmbreCover,'Cormorant Garamond',serif;color:rgba(232,208,244,.75)}
+.ob-galaxy-card .c-tag{font-size:11px;color:#f5d9ee;background:rgba(210,140,200,.2);padding:3px 11px;border-radius:99px;border:1px solid rgba(230,170,220,.25)}
+.ob-galaxy-card .c-body{overflow-y:auto;font-weight:300;font-size:14px;line-height:2.05;color:rgba(244,234,248,.9);white-space:pre-wrap;
+  overscroll-behavior:contain;letter-spacing:.02em;flex:1;max-width:760px}
+.ob-galaxy-card .c-body::-webkit-scrollbar{width:3px}
+.ob-galaxy-card .c-body::-webkit-scrollbar-thumb{background:rgba(230,180,230,.25);border-radius:3px}
+.ob-galaxy-card .c-acts{display:flex;gap:14px;margin-top:14px;flex-shrink:0}
+#ob-galaxy .ob-galaxy-card button{appearance:none;background:transparent!important;border:0!important;box-shadow:none!important;min-height:0;cursor:pointer}
+#ob-galaxy .ob-galaxy-card .c-close{color:rgba(230,205,242,.55);font-size:18px;padding:2px 4px!important;align-self:flex-start}
+#ob-galaxy .ob-galaxy-card .c-open{padding:4px 0!important;font-size:12px;letter-spacing:.12em;color:rgba(240,200,232,.75);border-bottom:1px solid rgba(240,200,232,.3)!important;border-radius:0!important}
+#ob-galaxy .ob-galaxy-card .c-open i{font:italic 13px OmbreCover,'Cormorant Garamond',serif;margin-left:4px}
+#ob-galaxy .ob-galaxy-card .c-open:hover{color:#ffd6f0}
+@media (max-width:700px){.ob-galaxy{border-width:6px;height:max(420px,calc(100vh - 190px))}.ob-galaxy-head h2{font-size:24px}.ob-galaxy-card{padding:34px 18px 16px}
+  .ob-galaxy-head{padding:16px 0 0 16px}.ob-galaxy-head .sub{font-size:12px;letter-spacing:.1em}.ob-galaxy-head .zh{margin-top:10px;font-size:11px;letter-spacing:.08em}
+  .ob-galaxy-tools{top:18px;right:14px;width:46%}#ob-galaxy .ob-galaxy-picker{font-size:12px;min-height:34px;padding-left:11px!important}}
+
+/* ── 记忆桶页工具栏：第一排全选 + 搜索，第二排筛选与排序 + 批量操作 ── */
+.ob-journal .bucket-viewbar{display:none!important}
+.ob-journal .ob-list-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:0 4px 14px}
+.ob-journal .ob-list-top>label{flex-shrink:0}
+.ob-journal .search-bar.ob-list-search{position:relative;flex:1 1 260px;display:flex;align-items:center;width:auto!important;max-width:none;margin:0!important;gap:0}
+.ob-journal .ob-list-search input{width:100%!important;height:40px;padding:9px 44px 9px 14px!important;font-size:12px}
+#list-view .ob-list-search button{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:32px;height:32px;padding:0!important;display:grid;place-items:center;
+  background:transparent!important;border:0!important;border-radius:2px!important;box-shadow:none!important;color:var(--text-dim)}
+#list-view .ob-list-search button:hover{color:var(--accent-ink,var(--accent));background:var(--theme-tint)!important}
+.ob-journal .bucket-bulkbar{align-items:center}
+.ob-journal .ob-filter{position:relative;margin-right:auto}
+#list-view .ob-filter .ob-filter-trigger{
+  display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 14px!important;margin:0;
+  background:var(--journal-paper)!important;color:var(--text);font-size:12px;letter-spacing:1px;cursor:pointer;
+  border:1px dashed var(--journal-line)!important;border-radius:3px!important;box-shadow:var(--journal-press)!important;
+}
+#list-view .ob-filter .ob-filter-trigger:hover,#list-view .ob-filter.is-open .ob-filter-trigger{border-style:solid!important;color:var(--accent-ink,var(--accent))}
+#list-view .ob-filter .ob-filter-trigger.is-filtered{border-style:solid!important;border-color:var(--accent)!important}
+.ob-filter-trigger svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.ob-filter-summary{font:italic 12px OmbreCover,'Cormorant Garamond',serif;color:var(--accent-ink,var(--accent));letter-spacing:.3px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ob-filter-summary:empty{display:none}
+.ob-filter-summary:not(:empty)::before{content:'· ';font-style:normal}
+.ob-filter-panel{
+  position:absolute;left:0;top:calc(100% + 10px);z-index:60;width:min(460px,calc(100vw - 48px));padding:16px 18px 18px;
+  background:var(--journal-paper);border:1px solid var(--journal-edge);border-radius:3px;
+  box-shadow:var(--journal-shadow);outline:1px dashed var(--journal-stitch);outline-offset:-6px;
+  animation:ob-filter-in .18s cubic-bezier(.2,.8,.3,1);
+}
+.ob-filter-panel[hidden]{display:none}
+@keyframes ob-filter-in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.ob-filter-title{margin:12px 0 8px;font:500 12px/1.4 'Songti SC','STSong','Noto Serif SC',serif;color:var(--text);letter-spacing:1px}
+.ob-filter-title:first-child{margin-top:0}
+.ob-filter-title i{font:italic 12px OmbreCover,'Cormorant Garamond',serif;color:var(--text-light);margin-left:4px;letter-spacing:.3px}
+.ob-filter-note{margin:6px 0 0;font-size:11px;color:var(--text-light)}
+.ob-filter-sorts{display:flex;flex-wrap:wrap;gap:6px}
+#list-view .ob-filter-panel .ob-filter-sort{
+  height:30px;padding:0 12px!important;margin:0;font-size:12px;cursor:pointer;color:var(--text-dim);
+  background:var(--theme-translucent)!important;border:1px dashed var(--border-strong)!important;border-radius:3px!important;box-shadow:none!important;
+}
+#list-view .ob-filter-panel .ob-filter-sort.active{background:var(--accent)!important;color:var(--theme-button-text)!important;border-style:solid!important;border-color:var(--accent)!important}
+/* 原筛选按钮：状态在前，标签在后，中间用伪元素做小标题 */
+.ob-journal #filters.ob-filter-chips{display:flex;flex-wrap:wrap;gap:6px;padding:0!important;margin:0!important;border:0!important;background:none!important;overflow:visible}
+.ob-journal #filters.ob-filter-chips .filter-btn{order:0;min-height:30px;padding:4px 12px;font-size:12px}
+.ob-journal #filters.ob-filter-chips .filter-btn[data-filter^="domain:"]{order:2}
+.ob-journal #filters.ob-filter-chips:has(.filter-btn[data-filter^="domain:"])::after{
+  content:'标签  Tags';order:1;flex-basis:100%;margin:8px 0 2px;white-space:pre;
+  font:500 12px/1.4 'Songti SC','STSong','Noto Serif SC',serif;color:var(--text);letter-spacing:1px;
+}
+/* 筛选与排序和批量按钮始终同一排：空间不够时批量按钮只留图标 */
+.ob-journal .bucket-bulkbar{flex-wrap:nowrap!important}
+.ob-journal .bucket-bulkbar-actions{width:auto!important;flex-wrap:nowrap!important;margin-left:auto;justify-content:flex-end}
+.ob-journal .bucket-bulkbar-actions .ob-btn-text{white-space:nowrap}
+@media (max-width:1180px){
+  .ob-journal .bucket-bulkbar-actions .ob-btn-text{display:none}
+  #list-view .bucket-bulkbar-actions button{width:34px;height:34px!important;padding:0!important;justify-content:center;gap:0!important}
+}
+@media (max-width:700px){.ob-filter-panel{width:calc(100vw - 36px)}.ob-filter-summary{max-width:70px}}
+
+/* ── 明暗切换过渡：新主题从点击处晕开 ── */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-old(root){z-index:1}
+::view-transition-new(root){z-index:2}
+html.ob-theme-fading body,html.ob-theme-fading body *,html.ob-theme-fading body::before{
+  transition:background-color .45s ease,color .45s ease,border-color .45s ease,box-shadow .45s ease!important;
+}
+
+/* ── 每页抬头：描边大编号 · 深色索引签 · 宋体标题 · 法语手写小字 · 日期 ── */
+.ob-hero{
+  position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:end;gap:6px 18px;
+  margin:4px 0 26px;padding:0 4px 16px;border-bottom:1px dashed var(--journal-line);
+}
+.ob-hero-num{font:italic 300 132px/.74 OmbreCover,'Cormorant Garamond','Times New Roman',serif;color:transparent;
+  -webkit-text-stroke:1.1px var(--journal-ink-soft);letter-spacing:-8px;padding-right:10px;user-select:none}
+.ob-hero-num::after{
+  content:'';position:absolute;left:-12px;top:-18px;width:46px;height:40px;transform:rotate(-16deg);pointer-events:none;
+  background:var(--ob-sticker-butterfly) center/contain no-repeat;filter:drop-shadow(1px 2px 1px #5f5a8f33);
+}
+.ob-hero-main{min-width:0}
+.ob-hero-kicker{display:inline-block;margin-bottom:8px;padding:5px 10px 4px;background:var(--journal-ink);color:var(--journal-ink-text);
+  font:600 10px/1 'Courier New',monospace;letter-spacing:3px}
+.ob-journal .ob-hero h2{margin:0;font:600 40px/1.08 'Songti SC','STSong','Noto Serif SC',serif;color:var(--text);letter-spacing:5px}
+.ob-hero-en{margin:6px 0 0;font:11px/1.6 'Courier New','Songti SC',monospace;letter-spacing:1.4px;color:var(--text-dim)}
+.ob-hero-fr{position:absolute;left:44%;top:-6px;margin:0;pointer-events:none;white-space:nowrap;transform:rotate(-4deg);
+  font:italic 32px/1 OmbreCover,'Cormorant Garamond',serif;color:var(--journal-ink-soft);opacity:.5}
+.ob-hero-date{text-align:right;white-space:nowrap}
+.ob-hero-date .d{font:400 34px/1 'Times New Roman',OmbreCover,serif;color:var(--text);letter-spacing:1px}
+.ob-hero-date .w{display:inline-block;margin-left:7px;padding:3px 6px 2px;vertical-align:top;background:var(--journal-ink);color:var(--journal-ink-text);font:600 10px/1 'Courier New',monospace;letter-spacing:1px}
+.ob-hero-date small{display:block;margin-top:8px;padding-top:6px;border-top:1px solid var(--journal-line);font:10px 'Courier New',monospace;letter-spacing:2px;color:var(--text-dim)}
+@media (max-width:860px){.ob-hero-fr{display:none}}
+@media (max-width:700px){
+  .ob-hero{grid-template-columns:auto minmax(0,1fr);margin-bottom:20px}
+  .ob-hero-num{font-size:68px;letter-spacing:-5px}
+  .ob-hero-num::after{left:-8px;top:-14px;width:32px;height:28px}
+  .ob-journal .ob-hero h2{font-size:30px;letter-spacing:3px}
+  .ob-hero-date{grid-column:1/-1;text-align:left;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ob-hero-date .d{font-size:18px}
+  .ob-hero-date .w{margin:0}
+  .ob-hero-date small{display:inline;margin:0;padding:0;border:0}
+}
+
+/* ── 记忆桶：一面贴满便签的墙。横线纸 / 方格纸 / 素纸 / 点阵纸轮换，配胶带、回形针、蝴蝶结 ── */
+.ob-journal{
+  --ob-sticker-clip:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 64'%3E%3Cpath d='M8 22V9a4 4 0 0 1 8 0v39a7 7 0 0 1-14 0V15' fill='none' stroke='%239fa2cc' stroke-width='2.4' stroke-linecap='round'/%3E%3Cpath d='M8 22V9a4 4 0 0 1 8 0v39a7 7 0 0 1-14 0V15' fill='none' stroke='%23ffffff' stroke-opacity='.6' stroke-width='.8' stroke-linecap='round' transform='translate(-.6 -.6)'/%3E%3C/svg%3E");
+  --ob-sticker-bow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 50'%3E%3Cg fill='%23ddd7f5' stroke='%237c80ad' stroke-width='1.6' stroke-linejoin='round'%3E%3Cpath d='M32 20C24 8 8 4 6 12s8 18 26 10z'/%3E%3Cpath d='M32 20c8-12 24-16 26-8s-8 18-26 10z'/%3E%3Cpath d='M30 23l-9 21 6-2 3 5 2-22'/%3E%3Cpath d='M34 23l9 21-6-2-3 5-2-22'/%3E%3C/g%3E%3Cpath d='M12 13c4 1 9 4 13 7M52 13c-4 1-9 4-13 7' fill='none' stroke='%23ffffff' stroke-width='1.2' stroke-linecap='round' opacity='.8'/%3E%3Cellipse cx='32' cy='21' rx='4.6' ry='5' fill='%23efebfd' stroke='%237c80ad' stroke-width='1.6'/%3E%3C/svg%3E");
+  --ob-sticker-butterfly:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 56'%3E%3Cg fill='%23d3cbf4' stroke='%237c80ad' stroke-width='1.5' stroke-linejoin='round'%3E%3Cpath d='M31 26C26 10 10 2 5 8s2 20 26 20z'/%3E%3Cpath d='M33 26c5-16 21-24 26-18s-2 20-26 20z'/%3E%3Cpath d='M31 29C18 30 9 38 12 45s14 2 19-14z' fill='%23e4def9'/%3E%3Cpath d='M33 29c13 1 22 9 19 16s-14 2-19-14z' fill='%23e4def9'/%3E%3C/g%3E%3Cpath d='M12 11c5 2 11 7 15 13M52 11c-5 2-11 7-15 13' fill='none' stroke='%23ffffff' stroke-width='1.1' opacity='.75'/%3E%3Cpath d='M32 22v24M32 22c-2-6-5-9-8-10M32 22c2-6 5-9 8-10' fill='none' stroke='%235a5886' stroke-width='1.4' stroke-linecap='round'/%3E%3C/svg%3E");
+  --ob-sticker-stamp:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Cg fill='none' stroke='%238a7ea8'%3E%3Ccircle cx='40' cy='40' r='35' stroke-width='2' stroke-dasharray='3 2'/%3E%3Ccircle cx='40' cy='40' r='27' stroke-width='1'/%3E%3C/g%3E%3Ctext x='40' y='38' text-anchor='middle' font-family='Georgia,serif' font-style='italic' font-size='12' fill='%238a7ea8'%3Esouvenir%3C/text%3E%3Ctext x='40' y='52' text-anchor='middle' font-family='Courier New,monospace' font-size='7' letter-spacing='1' fill='%238a7ea8'%3EOMBRE BRAIN%3C/text%3E%3C/svg%3E");
+}
+.ob-journal .bucket-list{grid-template-columns:minmax(0,1fr)!important;gap:22px}
+.ob-journal .bucket-list{padding-top:12px;counter-reset:ob-memo}
+.ob-journal .bucket-row{
+  --tilt:0deg;position:relative;overflow:visible;counter-increment:ob-memo;
+  padding:22px 18px 10px!important;row-gap:10px!important;transform:rotate(var(--tilt));transition:transform .2s,box-shadow .2s!important;
+}
+.ob-journal .bucket-row:hover{transform:translateY(-2px) rotate(var(--tilt))}
+/* 编号小签，像便签上的 #126 */
+.ob-journal .bucket-row::before{
+  content:'N° ' counter(ob-memo,decimal-leading-zero);position:absolute;top:-9px;left:18px;z-index:2;pointer-events:none;
+  padding:4px 10px 3px;background:var(--journal-ink);color:var(--journal-ink-text);
+  font:600 10px/1 'Courier New',monospace;letter-spacing:2px;transform:rotate(-2.5deg);box-shadow:1px 2px 0 #00000014;
+}
+.ob-journal .bucket-row::after{content:'';position:absolute;pointer-events:none;z-index:2}
+.ob-journal .bucket-row .name{font-family:'Songti SC','STSong','Noto Serif SC',serif;font-size:15px!important;letter-spacing:.5px}
+/* 列表只显示两行预览；详情与编辑仍读取完整正文，保存内容不受影响。 */
+.ob-journal .bucket-row-bottom .preview{display:-webkit-box!important;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;line-height:1.8!important}
+.ob-journal .bucket-row .time{font:italic 12px OmbreCover,'Cormorant Garamond',serif!important;letter-spacing:.3px}
+/* 1：横线信纸 + 格纹胶带 */
+.ob-journal .bucket-row:nth-child(4n+1){--tilt:-.35deg;
+  background-image:repeating-linear-gradient(180deg,transparent 0 27px,var(--journal-rule) 27px 28px)!important;background-position:0 14px!important}
+.ob-journal .bucket-row:nth-child(4n+1)::after{top:-11px;right:26px;width:86px;height:22px;transform:rotate(4deg);
+  background:repeating-linear-gradient(0deg,var(--journal-gingham) 0 5px,transparent 5px 10px),repeating-linear-gradient(90deg,var(--journal-gingham) 0 5px,transparent 5px 10px),var(--journal-gingham-bg);
+  clip-path:polygon(3% 6%,97% 0,100% 50%,96% 100%,1% 94%,4% 50%)}
+/* 2：方格纸 + 回形针 */
+.ob-journal .bucket-row:nth-child(4n+2){
+  background-image:linear-gradient(var(--journal-grid) 1px,transparent 1px),linear-gradient(90deg,var(--journal-grid) 1px,transparent 1px)!important;background-size:16px 16px!important}
+.ob-journal .bucket-row:nth-child(4n+2)::after{top:-16px;right:30px;width:12px;height:32px;transform:rotate(8deg);background:var(--ob-sticker-clip) center/contain no-repeat}
+/* 3：素纸 + 蝴蝶结 */
+.ob-journal .bucket-row:nth-child(4n+3){--tilt:.4deg}
+.ob-journal .bucket-row:nth-child(4n+3)::after{top:-16px;right:20px;width:46px;height:36px;transform:rotate(-8deg);background:var(--ob-sticker-bow) center/contain no-repeat;filter:drop-shadow(1px 2px 1px #5f5a8f2e)}
+/* 4：点阵纸 + 条纹和纸胶带 + 小邮戳 */
+.ob-journal .bucket-row:nth-child(4n+4){
+  background-image:radial-gradient(var(--journal-dot) 1px,transparent 1.3px)!important;background-size:14px 14px!important}
+.ob-journal .bucket-row:nth-child(4n+4)::after{top:-10px;left:50%;width:78px;height:19px;margin-left:-39px;transform:rotate(-3deg);
+  background:repeating-linear-gradient(135deg,var(--journal-tape-c) 0 6px,var(--journal-tape-d) 6px 12px);
+  clip-path:polygon(2% 8%,98% 0,100% 50%,97% 100%,0 94%,3% 50%)}
+.ob-journal .bucket-row:nth-child(8n+4) .bucket-row-bottom{position:relative}
+.ob-journal .bucket-row:nth-child(8n+4) .bucket-row-bottom::after{
+  content:'';position:absolute;right:-6px;bottom:-12px;width:58px;height:58px;transform:rotate(-12deg);opacity:.55;pointer-events:none;
+  background:var(--ob-sticker-stamp) center/contain no-repeat}
+html[data-theme="dark"] .ob-journal .bucket-row::after,html[data-theme="dark"] .ob-hero-num::after{opacity:.85}
+@media (prefers-reduced-motion:reduce){.ob-journal .bucket-row{transition:none!important}}
+
+/* ── 另外两套手账色系：暖沙（Warm Sand）/ 雾蓝（Mist）。贴纸与吊牌用滤镜跟着换色 ── */
+html[data-palette="sand"] body.dreamcloud.ob-journal{
+  --bg:#f0ebe3;--surface:#faf8f5;--surface-solid:#f5f1ea;--border:#e2d9cb;--border-strong:#c9b99a;
+  --text:#4a3f33;--text-dim:#85735d;--text-light:#a8977f;
+  --accent:#8b7355;--accent-light:#b09a7a;--accent-ink:#6e5a42;--accent-glow:rgba(139,115,85,.16);
+  --lcd:#f2ece2;--lcd-text:#4a3f33;--lcd-dim:#85735d;
+  --theme-input:#fffdf9e6;--theme-tint:#f2ece2;--theme-translucent:rgba(250,248,245,.9);
+  --theme-nav-active:#ece4d6;--theme-accent-text:#6e5a42;--theme-accent-strong:#765f45;--theme-button-text:#ffffff;
+  --theme-header:rgba(240,235,227,.94);--theme-overlay:rgba(250,248,245,.96);
+  --journal-paper:#faf8f5;--journal-edge:#d9cdb999;--journal-stitch:#c9b99a66;--journal-line:#c9b99a;
+  --journal-shadow:2px 4px 0 #c9b99a42,3px 8px 14px #8b73551a;--journal-shadow-hover:2px 5px 0 #c9b99a55,4px 10px 18px #8b735522;
+  --journal-press:0 3px 0 #c9b99a55;--journal-press-strong:0 3px 0 #8b735540;
+  --journal-tape-a:#e6dccbcc;--journal-tape-b:#f0e9dccc;--journal-tape-c:#e9d6c6cc;--journal-tape-d:#f3e6dacc;
+  --journal-icon:#f2ece2;--journal-panel:#fbf9f5;
+  --journal-ink:#5b4a37;--journal-ink-text:#ffffff;--journal-ink-soft:#b09a7a;
+  --journal-rule:#e5dccd;--journal-grid:#ebe3d5;--journal-dot:#d8ccb8;--journal-gingham:#c9b99a7a;--journal-gingham-bg:#f5efe5d9;
+  --journal-sky:url('/ob/static/login-paper-texture.svg'),linear-gradient(180deg,#ece5da 0%,#f3eee6 46%,#faf8f5 100%);
+  --journal-sky-size:256px 256px,100% 100%;--journal-sky-blend:multiply,normal;
+  --journal-sticker-filter:sepia(.8) saturate(.75) hue-rotate(-14deg) brightness(1.02);
+}
+html[data-palette="sand"][data-theme="dark"] body.dreamcloud.ob-journal{
+  --bg:#1c1814;--surface:#27211b;--surface-solid:#221d18;--border:#3d342a;--border-strong:#5e4f3e;
+  --text:#f0e6d8;--text-dim:#c2b3a0;--text-light:#9a8a76;
+  --accent:#c9b99a;--accent-light:#ddd0b6;--accent-ink:#e0d2b5;--accent-glow:rgba(201,185,154,.16);
+  --lcd:#2f281f;--lcd-text:#f0e6d8;--lcd-dim:#c2b3a0;
+  --theme-input:#201b16;--theme-tint:#2f281f;--theme-translucent:rgba(39,33,27,.92);
+  --theme-nav-active:#3a3126;--theme-accent-text:#e3d6bd;--theme-accent-strong:#d8c8a8;--theme-button-text:#1c1814;
+  --theme-header:rgba(28,24,20,.94);--theme-overlay:rgba(39,33,27,.98);
+  --journal-paper:#27211b;--journal-edge:#43392d;--journal-stitch:#ffffff12;--journal-line:#4d4133;
+  --journal-shadow:2px 4px 0 #0000004d,3px 10px 20px #00000059;--journal-shadow-hover:2px 5px 0 #00000059,4px 12px 24px #00000066;
+  --journal-press:0 3px 0 #00000059;--journal-press-strong:0 3px 0 #00000066;
+  --journal-tape-a:#6e5e48b3;--journal-tape-b:#5a4d3bb3;--journal-tape-c:#6e5348b3;--journal-tape-d:#5a453bb3;
+  --journal-icon:#2f281f;--journal-panel:#221d18;
+  --journal-ink:#ddd0b6;--journal-ink-text:#1c1814;--journal-ink-soft:#9a8a6e;
+  --journal-rule:#ffffff10;--journal-grid:#ffffff0a;--journal-dot:#ffffff18;--journal-gingham:#a8957566;--journal-gingham-bg:#3d3429d9;
+  --journal-sky:radial-gradient(1px 1px at 12% 22%,#fff3dcb3 50%,transparent 51%),radial-gradient(1px 1px at 68% 14%,#fff3dc99 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 82% 61%,#ffe7c699 50%,transparent 51%),radial-gradient(1px 1px at 33% 78%,#fff3dc80 50%,transparent 51%),
+    linear-gradient(180deg,#221d18 0%,#1c1814 55%,#17130f 100%);
+  --journal-sky-size:auto;--journal-sky-blend:normal;
+  --journal-sticker-filter:sepia(.8) saturate(.6) hue-rotate(-14deg) brightness(.85);
+}
+html[data-palette="mist"] body.dreamcloud.ob-journal{
+  --bg:#e6eef2;--surface:#f5f8fa;--surface-solid:#eef3f6;--border:#d5e0e6;--border-strong:#a9bfcb;
+  --text:#34474f;--text-dim:#6c8390;--text-light:#93a7b1;
+  --accent:#5d7a8a;--accent-light:#8ba6b4;--accent-ink:#4a6574;--accent-glow:rgba(93,122,138,.16);
+  --lcd:#e9f0f4;--lcd-text:#34474f;--lcd-dim:#6c8390;
+  --theme-input:#f9fbfce6;--theme-tint:#e9f0f4;--theme-translucent:rgba(245,248,250,.9);
+  --theme-nav-active:#e0eaef;--theme-accent-text:#4a6574;--theme-accent-strong:#52707f;--theme-button-text:#ffffff;
+  --theme-header:rgba(230,238,242,.94);--theme-overlay:rgba(245,248,250,.96);
+  --journal-paper:#f8fafb;--journal-edge:#c8d6de99;--journal-stitch:#a9bfcb66;--journal-line:#a9bfcb;
+  --journal-shadow:2px 4px 0 #a9bfcb42,3px 8px 14px #5d7a8a1a;--journal-shadow-hover:2px 5px 0 #a9bfcb55,4px 10px 18px #5d7a8a22;
+  --journal-press:0 3px 0 #a9bfcb55;--journal-press-strong:0 3px 0 #5d7a8a40;
+  --journal-tape-a:#d3e0e8cc;--journal-tape-b:#e4edf2cc;--journal-tape-c:#e6dfe8cc;--journal-tape-d:#f1ecf2cc;
+  --journal-icon:#e9f0f4;--journal-panel:#f7fafb;
+  --journal-ink:#34505e;--journal-ink-text:#ffffff;--journal-ink-soft:#8ba6b4;
+  --journal-rule:#d4e1e9;--journal-grid:#dde7ed;--journal-dot:#c3d2db;--journal-gingham:#a9bfcb7a;--journal-gingham-bg:#eaf1f5d9;
+  --journal-sky:url('/ob/static/login-paper-texture.svg'),linear-gradient(180deg,#e0eaf0 0%,#e9f0f4 46%,#f8fafb 100%);
+  --journal-sky-size:256px 256px,100% 100%;--journal-sky-blend:multiply,normal;
+  --journal-sticker-filter:hue-rotate(-55deg) saturate(.52);
+}
+html[data-palette="mist"][data-theme="dark"] body.dreamcloud.ob-journal{
+  --bg:#12171b;--surface:#1c2329;--surface-solid:#171d22;--border:#2e3a42;--border-strong:#4b5f6b;
+  --text:#e3edf2;--text-dim:#a9bcc6;--text-light:#7f949f;
+  --accent:#a9bfcb;--accent-light:#c4d5de;--accent-ink:#c4d5de;--accent-glow:rgba(169,191,203,.16);
+  --lcd:#24303a;--lcd-text:#e3edf2;--lcd-dim:#a9bcc6;
+  --theme-input:#161c21;--theme-tint:#24303a;--theme-translucent:rgba(28,35,41,.92);
+  --theme-nav-active:#2a3741;--theme-accent-text:#cddde5;--theme-accent-strong:#bccfd9;--theme-button-text:#12171b;
+  --theme-header:rgba(18,23,27,.94);--theme-overlay:rgba(28,35,41,.98);
+  --journal-paper:#1c2329;--journal-edge:#34434d;--journal-stitch:#ffffff12;--journal-line:#3c4c57;
+  --journal-shadow:2px 4px 0 #0000004d,3px 10px 20px #00000059;--journal-shadow-hover:2px 5px 0 #00000059,4px 12px 24px #00000066;
+  --journal-press:0 3px 0 #00000059;--journal-press-strong:0 3px 0 #00000066;
+  --journal-tape-a:#4f6573b3;--journal-tape-b:#405360b3;--journal-tape-c:#5a5266b3;--journal-tape-d:#4a4455b3;
+  --journal-icon:#24303a;--journal-panel:#171d22;
+  --journal-ink:#c4d5de;--journal-ink-text:#12171b;--journal-ink-soft:#7f97a5;
+  --journal-rule:#ffffff10;--journal-grid:#ffffff0a;--journal-dot:#ffffff18;--journal-gingham:#7f97a566;--journal-gingham-bg:#2c3a44d9;
+  --journal-sky:radial-gradient(1px 1px at 12% 22%,#e6f4ffb3 50%,transparent 51%),radial-gradient(1px 1px at 68% 14%,#e6f4ff99 50%,transparent 51%),
+    radial-gradient(1.5px 1.5px at 82% 61%,#d6ecff99 50%,transparent 51%),radial-gradient(1px 1px at 33% 78%,#e6f4ff80 50%,transparent 51%),
+    linear-gradient(180deg,#172027 0%,#12171b 55%,#0e1316 100%);
+  --journal-sky-size:auto;--journal-sky-blend:normal;
+  --journal-sticker-filter:hue-rotate(-55deg) saturate(.46) brightness(.85);
+}
+/* 设置里的色系预览块 */
+.palette-preview-sand>span:first-child{background:linear-gradient(135deg,#faf8f5,#c9b99a)}
+.palette-preview-sand>span:last-child{background:linear-gradient(135deg,#1c1814,#8b7355)}
+.palette-preview-mist>span:first-child{background:linear-gradient(135deg,#f5f8fa,#a9bfcb)}
+.palette-preview-mist>span:last-child{background:linear-gradient(135deg,#12171b,#5d7a8a)}
+.ob-journal .palette-preview-lilac>span:first-child{background:linear-gradient(135deg,#fffefd,#c3bad8)}
+.ob-journal .palette-preview-lilac>span:last-child{background:linear-gradient(135deg,#14121d,#7f6fa3)}
+
+/* ── 贴纸：从贴纸图里抠出来的蝴蝶结、胶带、邮戳、蕾丝，随色系换色 ── */
+.ob-journal .bucket-row::after,.ob-hero-num::after,.ob-journal::after{filter:var(--journal-sticker-filter,none)}
+/* 缩小后的贴纸跨在卡片上沿，标题在下方留出间距。 */
+.ob-journal .bucket-row:nth-child(4n+1)::after{top:-18px;right:18px;width:72px;height:36px;transform:rotate(5deg);clip-path:none;
+  background:url('/ob/static/sticker-tape-gingham.webp') center/contain no-repeat}
+.ob-journal .bucket-row:nth-child(4n+3)::after{top:-20px;right:14px;width:42px;height:38px;transform:rotate(-8deg);
+  background:url('/ob/static/sticker-bow.webp') center/contain no-repeat;filter:var(--journal-sticker-filter,none) drop-shadow(1px 2px 1px #00000022)}
+.ob-journal .bucket-row:nth-child(8n+7)::after{top:-21px;right:18px;width:30px;height:40px;transform:rotate(10deg);
+  background:url('/ob/static/sticker-bow-heart.webp') center/contain no-repeat;filter:var(--journal-sticker-filter,none) drop-shadow(1px 2px 1px #00000022)}
+.ob-journal .bucket-row:nth-child(4n+4)::after{top:-17px;left:50%;width:78px;height:34px;margin-left:-39px;transform:rotate(-3deg);clip-path:none;
+  background:url('/ob/static/sticker-tape-stripe.webp') center/contain no-repeat}
+.ob-journal .bucket-row:nth-child(8n+4) .bucket-row-bottom::after{width:66px;height:58px;opacity:.7;filter:var(--journal-sticker-filter,none);
+  background:url('/ob/static/sticker-stamp.webp') center/contain no-repeat}
+.ob-hero-num::after{width:50px;height:44px;left:-10px;top:-2px;background:url('/ob/static/sticker-butterfly.webp') center/contain no-repeat}
+/* 页面右下角压一角蕾丝 */
+.ob-journal::after{content:'';position:fixed;right:0;bottom:0;z-index:-1;width:min(240px,30vw);aspect-ratio:314/360;pointer-events:none;
+  background:url('/ob/static/sticker-lace.webp') right bottom/contain no-repeat;opacity:.55}
+html[data-theme="dark"] .ob-journal::after{opacity:.16}
+html[data-theme="dark"] .ob-journal .bucket-row::after,html[data-theme="dark"] .ob-hero-num::after{opacity:.8}
+
+/* ── 小猫吉祥物：每页抬头里坐一只，姿势各不相同 ── */
+.ob-hero::after{content:'';position:absolute;right:250px;bottom:-1px;width:112px;height:104px;pointer-events:none;
+  background:var(--hero-mascot,none) center bottom/contain no-repeat;filter:drop-shadow(1px 3px 2px #00000020)}
+.ob-hero[data-view="list"]{--hero-mascot:url('/ob/static/mascot-peek.webp')}
+.ob-hero[data-view="network"]{--hero-mascot:url('/ob/static/mascot-lounge.webp')}
+.ob-hero[data-view="plan"]{--hero-mascot:url('/ob/static/mascot-cook.webp')}
+.ob-hero[data-view="letters"]{--hero-mascot:url('/ob/static/mascot-lie.webp')}
+.ob-hero[data-view="anchors"]{--hero-mascot:url('/ob/static/mascot-stand.webp')}
+.ob-hero[data-view="import"]{--hero-mascot:url('/ob/static/mascot-bowl.webp')}
+.ob-hero[data-view="logs"]{--hero-mascot:url('/ob/static/mascot-mug.webp')}
+.ob-hero[data-view="settings"]{--hero-mascot:url('/ob/static/mascot-sleep.webp')}
+@media (max-width:860px){.ob-hero::after{right:6px;bottom:auto;top:-8px;width:78px;height:72px}}
+
+/* ── 顶部横条收紧：矮一点、字小一点，别把下面的贴纸压住 ── */
+.ob-journal .header{min-height:0!important;padding-top:8px!important;padding-bottom:8px!important;gap:14px}
+.ob-journal .header h1{font-size:26px!important;gap:10px}
+.ob-journal .header .stats,.ob-journal #heartbeat-indicator,.ob-journal #anchor-counter{font-size:10px!important}
+@media (min-width:701px){.ob-journal .header .header-actions button{height:30px!important;font-size:11px!important}}
+.ob-journal .header-meta{gap:4px 10px}
+@media (max-width:700px){
+  .ob-journal .header{padding:8px 14px!important;gap:6px}
+  .ob-journal .header h1{font-size:22px!important}
+}
+
+/* 桌面顶栏单独排版；手机继续沿用原有布局。 */
+@media (min-width:769px){
+  .ob-journal .header{display:grid;grid-template-columns:auto minmax(0,1fr) auto;grid-template-areas:"title meta actions";flex-wrap:nowrap;padding-left:28px!important;padding-right:28px!important}
+  .ob-journal .header h1{grid-area:title}
+  .ob-journal .header-meta{grid-area:meta;min-width:0;max-width:none;justify-content:flex-end}
+  .ob-journal .header-actions{grid-area:actions;margin-left:auto;justify-self:end;justify-content:flex-end;flex-wrap:nowrap}
+  .ob-journal .header .header-actions button{width:auto;min-width:0;white-space:nowrap;font-size:11px!important;padding:0 9px!important}
+  .ob-journal .header-actions .theme-toggle-label{display:inline}
+}
+/* 每条记忆的操作与就地编辑，仍使用原来的记忆接口。 */
+.ob-row-actions{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:0;padding-top:8px;border-top:1px dashed var(--journal-line)}
+.ob-journal .ob-row-actions button,.ob-journal .ob-inline-cancel{font:inherit;font-size:11px;line-height:1.5;min-height:30px;padding:4px 11px;background:var(--journal-paper);color:var(--text-dim);border:1px solid var(--journal-line);border-radius:3px;box-shadow:none}
+.ob-row-actions button[data-action=delete]{color:var(--negative)}
+.ob-row-actions button:disabled{opacity:.55;cursor:wait}
+.ob-row-message{display:block;font-size:12px;line-height:1.7;margin-top:8px;color:var(--text-dim);overflow-wrap:anywhere}
+.ob-inline-editor[hidden]{display:none}
+.ob-inline-editor{margin-top:12px;cursor:auto}
+.ob-inline-editor details{margin:0!important;padding:14px!important;min-width:0}
+.ob-inline-editor details>summary{display:none}
+.ob-inline-editor details>div:first-of-type{grid-template-columns:110px minmax(0,1fr)!important}
+.ob-inline-editor input:not([type=checkbox]):not([type=range]),.ob-inline-editor textarea,.ob-inline-editor select{width:100%!important;min-width:0;max-width:100%;box-sizing:border-box}
+.ob-inline-editor input[type=range]{max-width:100%}
+.ob-inline-editor [data-edit-field=edit-content]{min-height:190px!important}
+.ob-inline-editor .ob-inline-savebar{position:sticky;bottom:max(10px,env(safe-area-inset-bottom));z-index:3;flex-wrap:wrap;padding:10px 0;background:var(--journal-paper)}
+.ob-inline-editor .ob-inline-savebar [data-edit-field=edit-msg]{flex:1 1 180px;overflow-wrap:anywhere}
+.ob-journal .bucket-row:has(.ob-inline-editor:not([hidden])){transform:none!important}
+@media(max-width:700px){
+  .ob-inline-editor details>div:first-of-type{grid-template-columns:minmax(0,1fr)!important;gap:7px!important}
+  .ob-inline-editor details>div:first-of-type>label{padding-top:8px!important}
+  .ob-journal .bucket-list{gap:20px}
+  .ob-journal .bucket-row{padding:20px 14px 8px!important}
+  .ob-row-actions{gap:5px}
+  .ob-journal .ob-row-actions button{padding:4px 9px}
+}
+/* 主页整体缩小一档（文字、图片、间距同比例）；登录封面与揭幕光效不受影响。
+   调整大小只改这里的变量。 */
+:root{--ob-ui-scale:.9}
+@media (max-width:700px){:root{--ob-ui-scale:.93}}
+/* 缩放放在根元素上，固定定位的侧栏、弹窗仍按整屏计算；封面用反向缩放保持原尺寸。 */
+html{zoom:var(--ob-ui-scale)}
+/* 小伙伴的拖拽按屏幕坐标定位，同样反向缩放，保持原大小且松手停在原处 */
+#auth-overlay,.ob-cover-press-ripple,.ob-cover-waterlight,#ob-chick{zoom:calc(1 / var(--ob-ui-scale))}
+/* 有的浏览器的 vh/vw 不随 zoom 换算：--ob-vk/--ob-wk 由 dashboard-journal.js 实测补偿，
+   保证整屏高的侧栏、面板缩小后仍贴满屏幕。 */
+body{min-height:calc(100vh * var(--ob-vk,1))}
+.detail-panel{height:calc(100vh * var(--ob-vk,1) - 24px);width:min(440px,calc(100vw * var(--ob-wk,1) - 24px))}
+.self-panel{height:calc(100vh * var(--ob-vk,1));width:min(460px,calc(100vw * var(--ob-wk,1) - 16px))}
+#network-canvas{height:calc(100vh * var(--ob-vk,1) - 180px)}
+.ob-galaxy{height:max(460px,calc(100vh * var(--ob-vk,1) - 300px))}
+@media (max-width:700px){.ob-galaxy{height:max(420px,calc(100vh * var(--ob-vk,1) - 190px))}}
+/* 记忆桶卡片再小一号：只作用于列表卡片，详情与编辑面板保持原尺寸。 */
+.ob-journal .bucket-list{gap:18px}
+.ob-journal .bucket-row{padding:24px 16px 8px!important;row-gap:8px!important}
+.ob-journal .bucket-row .icon{width:26px;height:26px;min-width:26px;border-radius:9px}
+.ob-journal .bucket-row .icon svg{width:14px;height:14px}
+.ob-journal .bucket-row .bucket-select{width:15px;height:15px}
+.ob-journal .bucket-row-top .name{font-size:13.5px!important;line-height:1.6}
+.ob-journal .bucket-row .bucket-row-bottom{padding-left:33px}
+.ob-journal .bucket-row-bottom .preview{font-size:11.5px;line-height:1.7!important}
+.ob-journal .bucket-row::before{font-size:9px;padding:3px 8px 2px;top:-8px}
+.ob-journal .ob-row-actions{padding-top:6px;gap:5px}
+.ob-journal .ob-row-actions button{min-height:26px;padding:3px 9px;font-size:10.5px}
+@media(max-width:700px){
+  .ob-journal .bucket-list{gap:16px}
+  .ob-journal .bucket-row{padding:24px 12px 7px!important}
+  .ob-journal .bucket-row .bucket-row-bottom{padding-left:0}
+  .ob-journal .bucket-row-top .name{font-size:13px!important}
+  .ob-journal .ob-row-actions button{padding:3px 8px}
+}
+/* 「信」页「写一封」卡片右上角的薰衣草贴纸，向左倾斜，跟随色系滤镜 */
+.ob-journal #letters-view .config-section:first-of-type::before{content:'';position:absolute;right:-14px;top:-30px;z-index:3;width:70px;height:118px;pointer-events:none;
+  background:url('/ob/static/sticker-lavender.webp') center/contain no-repeat;transform:rotate(-45deg);
+  filter:var(--journal-sticker-filter,none) drop-shadow(1px 3px 2px #00000026)}
+html[data-theme="dark"] .ob-journal #letters-view .config-section:first-of-type::before{opacity:.85}
+/* 斜放的贴纸不能把页面撑出横向滚动 */
+.ob-journal #letters-view{overflow-x:clip}
+@media (max-width:700px){.ob-journal #letters-view .config-section:first-of-type::before{right:4px;top:-26px;width:54px;height:92px}}

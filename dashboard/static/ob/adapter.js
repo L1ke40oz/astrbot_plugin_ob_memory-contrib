@@ -11,7 +11,7 @@
   var searchRevision = 0;
   var nativeDetail;
   var unsupported = {
-    about: 'OB 界面来自本地 Ombre Brain 3.7.0，记忆与模型调用继续由 AstrBot 插件提供。',
+    about: 'OB 界面来自本地 Ombre Brain 3.11.0，记忆与模型调用继续由 AstrBot 插件提供。',
     'v3-debug': '插件未提供 OB 的调试回放。'
   };
   try { selectedSession = localStorage.getItem('memory_dashboard_session_id') || ''; } catch (_) {}
@@ -23,8 +23,10 @@
   function canLeaveEdit(message) {
     if (saving || (window.isObDomainSaving && window.isObDomainSaving())) { feedback('正在保存，请稍后操作。'); return false; }
     var domainDraft = window.hasObDomainDrafts && window.hasObDomainDrafts();
-    if ((dirty || domainDraft) && !confirm(message)) return false;
+    var inlineDraft = window.hasObInlineDrafts && window.hasObInlineDrafts();
+    if ((dirty || domainDraft || inlineDraft) && !confirm(message)) return false;
     if (domainDraft && window.discardObDomainDrafts) window.discardObDomainDrafts();
+    if (inlineDraft && window.discardObInlineDrafts) window.discardObInlineDrafts();
     dirty = false;
     return true;
   }
@@ -118,15 +120,19 @@
     });
   }
 
-  async function saveEdit(id) {
+  async function saveEdit(id, editorRoot) {
     if (saving) return;
-    var msg = document.getElementById('edit-msg');
-    var form = document.getElementById('bucket-edit-form');
+    var inline = !!(editorRoot && editorRoot.dataset.inlineEditor === 'true');
+    var field = function (name) {
+      return inline ? editorRoot.querySelector('[data-edit-field="edit-' + name + '"]') : document.getElementById('edit-' + name);
+    };
+    var msg = inline ? editorRoot.querySelector('[data-edit-field="edit-msg"]') : document.getElementById('edit-msg');
+    var form = inline ? editorRoot : document.getElementById('bucket-edit-form');
     var body = {};
-    ['name','content','domain','tags'].forEach(function (key) { body[key] = document.getElementById('edit-' + key).value; });
-    ['pinned','resolved','digested'].forEach(function (key) { body[key] = document.getElementById('edit-' + key).checked; });
-    body.importance = Number(document.getElementById('edit-importance').value);
-    var type = document.getElementById('edit-type');
+    ['name','content','domain','tags'].forEach(function (key) { body[key] = field(key).value; });
+    ['pinned','resolved','digested'].forEach(function (key) { body[key] = field(key).checked; });
+    body.importance = Number(field('importance').value);
+    var type = field('type');
     if (type && !type.disabled) body.type = type.value;
     if (!body.name.trim() || !body.content.trim()) { msg.textContent = '名称和正文不能为空。'; return; }
     saving = true;
@@ -138,7 +144,8 @@
       var result = await response.json();
       if (!response.ok) throw new Error(result.error || '保存失败');
       dirty = false;
-      if (await nativeDetail(id)) customizeDetail();
+      if (inline) form.dispatchEvent(new CustomEvent('ob-memory-saved', {bubbles:true,detail:{id:id}}));
+      else if (await nativeDetail(id)) customizeDetail();
       await loadBuckets();
       feedback('记忆已保存。' + (result.warnings || []).join(' '));
     } catch (error) { msg.textContent = error.message; }
@@ -344,7 +351,7 @@
       return canLeaveEdit('编辑内容尚未保存，放弃修改并切换界面？');
     };
     window.addEventListener('beforeunload', function (event) {
-      if (dirty || saving || (window.hasObDomainDrafts && window.hasObDomainDrafts()) || (window.isObDomainSaving && window.isObDomainSaving())) { event.preventDefault(); event.returnValue = ''; }
+      if (dirty || saving || (window.hasObInlineDrafts && window.hasObInlineDrafts()) || (window.hasObDomainDrafts && window.hasObDomainDrafts()) || (window.isObDomainSaving && window.isObDomainSaving())) { event.preventDefault(); event.returnValue = ''; }
     });
     window.loadVersionBadge = async function () {
       document.title = 'Ombre Brain · AstrBot';
@@ -361,13 +368,13 @@
     var mode = document.getElementById('network-mode');
     if (mode) { mode.value = 'concept'; Array.from(mode.options).forEach(function (o) { o.disabled = o.value !== 'concept'; }); }
     var recovery = document.getElementById('auth-login-form');
-    if (recovery) recovery.querySelectorAll('[onclick*="Recovery"]').forEach(function (el) { el.hidden = true; });
+    if (recovery) recovery.querySelectorAll('[onclick*="Recovery"], [data-cover-action="showRecovery"]').forEach(function (el) { el.remove(); });
     var warning = document.getElementById('auth-setup-remote-warning');
     if (warning) warning.textContent = '请设置仪表盘访问密码。两套界面共用同一账户和登录状态。';
     document.getElementById('heartbeat-indicator').title = 'AstrBot 记忆插件状态';
     window.updateStats();
     window.installObDomains();
-    window.installObExplorer();
+    // The journal layout provides its own search and filter controls.
   }
   window.installAstrbotObDashboard = install;
   document.addEventListener('DOMContentLoaded', install, {once:true});

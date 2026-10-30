@@ -69,7 +69,7 @@
         }
         var logout = doc.querySelector('button[onclick*="doLogout"]');
         if (logout) logout.after(makeButton('frontend-switch'));
-        var login = doc.querySelector('#auth-overlay > div, #loginPage .login-card');
+        var login = doc.querySelector('#auth-overlay .ob-cover-controls') || doc.querySelector('#auth-overlay > div, #loginPage .login-card');
         if (login) {
           var loginSwitch = makeButton('frontend-switch-login');
           var themeButton = login.querySelector('button[onclick*="toggleTheme"], button[onclick*="toggleDashboardTheme"]');
